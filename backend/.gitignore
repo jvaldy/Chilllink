@@ -1,0 +1,21 @@
+# Composer vendor
+/vendor/
+
+/bin/
+/var/
+/vendor/
+/node_modules/  # si des modules JS sont présents dans backend
+
+# Environnement
+.env.local
+.env.*.local
+.env.prod
+
+# Logs & cache
+/log/
+cache/
+sessions/
+
+# PHPUnit
+/phpunit.xml
+/phpunit.xml.dist

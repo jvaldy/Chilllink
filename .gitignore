@@ -1,52 +1,40 @@
-# Cache and logs (Symfony2)
-/app/cache/*
-/app/logs/*
-!app/cache/.gitkeep
-!app/logs/.gitkeep
+# Environnement généré / dépendances globales
+/node_modules
+/vendor
+/.idea
+/.vscode
+.DS_Store
 
-# Email spool folder
-/app/spool/*
+# Conteneurs Docker volumes
+/docker/db/data
+/docker/…/data
 
-# Cache, session files and logs (Symfony3)
-/var/cache/*
-/var/logs/*
-/var/sessions/*
-!var/cache/.gitkeep
-!var/logs/.gitkeep
-!var/sessions/.gitkeep
+# Logs & cache généraux
+*.log
+logs/
+tmp/
+coverage/
 
-# Logs (Symfony4)
-/var/log/*
-!var/log/.gitkeep
+# Build front-end
+/frontend/dist/
+/frontend/build/
 
-# Parameters
-/app/config/parameters.yml
-/app/config/parameters.ini
+# Build back-end, cache, logs
+/backend/var/cache/
+/backend/var/log/
+/backend/var/sessions/
 
-# Managed by Composer
-/app/bootstrap.php.cache
-/var/bootstrap.php.cache
-/bin/*
-!bin/console
-!bin/symfony_requirements
-/vendor/
+# Secrets & fichiers d’environnement
+/backend/.env.local
+/backend/.env.*.local
+/backend/.env.prod
 
-# Assets and user uploads
-/web/bundles/
-/web/uploads/
+# IDE & système
+*.swp
+*~
+Thumbs.db
 
-# PHPUnit
-/app/phpunit.xml
-/phpunit.xml
+# Qualité & formatage — fichiers de config non ignorés, mais dossiers générés si existants
+/.phpunit.result.cache
+/.eslintcache
 
-# Build data
-/build/
-
-# Composer PHAR
-/composer.phar
-
-# Backup entities generated with doctrine:generate:entities command
-**/Entity/*~
-
-# Embedded web-server pid file
-/.web-server-pid
