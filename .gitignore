@@ -25,6 +25,7 @@ coverage/
 /backend/var/sessions/
 
 # Secrets & fichiers d’environnement
+/backend/.env
 /backend/.env.local
 /backend/.env.*.local
 /backend/.env.prod

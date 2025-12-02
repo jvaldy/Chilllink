@@ -10,6 +10,9 @@
 .env.local
 .env.*.local
 .env.prod
+.env.dev
+.env
+
 
 # Logs & cache
 /log/
@@ -19,3 +22,7 @@ sessions/
 # PHPUnit
 /phpunit.xml
 /phpunit.xml.dist
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

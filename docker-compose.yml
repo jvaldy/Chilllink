@@ -6,7 +6,7 @@ services:
     container_name: chilllink_api
     restart: always
     ports:
-      - "8080:80"
+      - "8888:80"
     env_file:
       - ./backend/.env
     depends_on:
@@ -36,7 +36,7 @@ services:
     container_name: chilllink_adminer
     restart: always
     ports:
-      - "8081:8080"
+      - "8082:8080"
     depends_on:
       - db
     environment:

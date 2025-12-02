@@ -1,0 +1,137 @@
+@import '../shared/styles/theme.css';
+
+/* ===============================
+   STRUCTURE GLOBALE
+================================*/
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-dark);
+    overflow: hidden;
+}
+
+/* ===============================
+   SIDEBAR
+================================*/
+
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-darker);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-lg) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.sidebar-title {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar-item {
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: 0.15s;
+}
+
+.sidebar-item:hover {
+    background-color: var(--bg-soft);
+    color: var(--text-light);
+}
+
+.sidebar-item.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: 600;
+}
+
+.sidebar-item.logout {
+    color: var(--error-color);
+}
+
+.sidebar-item.logout:hover {
+    background-color: rgba(255,0,0,0.15);
+}
+
+.sidebar-separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: var(--space-sm) 0;
+}
+
+/* ===============================
+   MAIN CONTENT
+================================*/
+
+.dashboard-main {
+    flex: 1;
+    padding: var(--space-xl);
+    overflow-y: auto;
+}
+
+.dashboard-main h1 {
+    margin-bottom: var(--space-md);
+}
+
+.dashboard-text {
+    color: var(--text-muted);
+    margin-bottom: var(--space-lg);
+}
+
+.dashboard-placeholder {
+    background-color: var(--bg-darker);
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+/* ===============================
+   RESPONSIVE
+================================*/
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .dashboard-main {
+        padding: var(--space-lg);
+    }
+}
+
+@media (max-width: 700px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+        padding: var(--space-md);
+        overflow-x: auto;
+    }
+
+    .sidebar-item {
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .dashboard-main {
+        padding: var(--space-md);
+    }
+}

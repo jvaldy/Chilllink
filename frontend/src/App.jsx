@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import Login from "./features/auth/Login";
+import Register from "./features/auth/Register";
+import Dashboard from "./pages/Dashboard";
+import { authStore } from "./features/auth/authStore";
+import "./shared/styles/theme.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [isLogged, setIsLogged] = useState(authStore.isAuthenticated());
+  const [mode, setMode] = useState("login"); // 'login' | 'register'
+
+  const handleLoginSuccess = () => {
+    setIsLogged(true);
+  };
+
+  if (isLogged) {
+    return <Dashboard />;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div style={{ minHeight: "100vh", background: "var(--bg-color)", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ width: "400px" }}>
+        {mode === "login" ? (
+          <Login 
+            onSuccess={handleLoginSuccess}
+            onSwitchToRegister={() => setMode("register")}
+          />
+        ) : (
+          <Register 
+            onSwitchToLogin={() => setMode("login")}
+          />
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
-
-export default App
