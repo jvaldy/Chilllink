@@ -58,6 +58,24 @@ services:
     networks:
       - chilllink-net
 
+  mercure:
+    image: dunglas/mercure
+    container_name: chilllink_mercure
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':3000'
+      MERCURE_PUBLISHER_JWT_KEY: ChangeThisMercureSecretInProd
+      MERCURE_SUBSCRIBER_JWT_KEY: ChangeThisMercureSecretInProd
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_origins *
+        anonymous
+    ports:
+      - "3000:3000"
+    networks:
+      - chilllink-net
+
+
+
 networks:
   chilllink-net:
     driver: bridge
