@@ -28,6 +28,12 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
+        # Routes publiques API (register ici aussi)
+        public_api:
+            pattern: ^/api/register$
+            stateless: true
+            security: false
+
         # firewall pour l'API protégée
         api:
             pattern: ^/api
@@ -35,6 +41,8 @@ security:
             jwt: ~
 
     access_control:
+        - { path: ^/api/doc(\.json)?$, roles: PUBLIC_ACCESS }
         - { path: ^/api/login_check$, roles: PUBLIC_ACCESS }
         - { path: ^/api/register$,    roles: PUBLIC_ACCESS }
         - { path: ^/api,              roles: IS_AUTHENTICATED_FULLY }
+        

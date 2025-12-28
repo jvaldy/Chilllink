@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api')]
 final class AuthController extends AbstractController
@@ -32,6 +33,29 @@ final class AuthController extends AbstractController
         $this->validator = $validator;
     }
 
+    
+    #[OA\Tag(name: 'Authentification')]
+    #[OA\Post(
+        path: '/api/register',
+        summary: 'Inscription d’un nouvel utilisateur',
+        security: [],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'user@email.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password123'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Utilisateur créé'),
+            new OA\Response(response: 400, description: 'Email et mot de passe requis'),
+            new OA\Response(response: 409, description: 'Email déjà utilisé'),
+            new OA\Response(response: 422, description: 'Erreurs de validation'),
+        ]
+    )]
     #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
@@ -89,11 +113,7 @@ final class AuthController extends AbstractController
 
 
 
-    #[Route('/health', name: 'api_health', methods: ['GET'])]
-    public function health(): JsonResponse
-    {
-        return new JsonResponse(['status' => 'ok'], Response::HTTP_OK);
-    }
+
 
 
     // Note: Login is handled by the firewall (json_login) of LexikJWTAuthenticationBundle

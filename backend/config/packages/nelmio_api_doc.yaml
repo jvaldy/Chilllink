@@ -1,0 +1,55 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Chilllink API
+            description: Documentation OpenAPI de l’API Chilllink (Symfony 6.4 + JWT).
+            version: 1.0.0
+        components:
+            securitySchemes:
+                bearerAuth:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+        security:
+            - bearerAuth: []
+
+        paths:
+            /api/login_check:
+                post:
+                    tags: [Authentification]
+                    summary: Authentification utilisateur (login)
+                    security: []   # public
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [email, password]
+                                    properties:
+                                        email:
+                                            type: string
+                                            format: email
+                                            example: user@email.com
+                                        password:
+                                            type: string
+                                            format: password
+                                            example: "password123"
+                responses:
+                    '200':
+                        description: Connexion réussie => retourne token JWT
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        token:
+                                            type: string
+                                            example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                    '401':
+                        description: Identifiants invalides
+
+    areas:
+        path_patterns:
+            - ^/api(?!/doc$|/doc\.json$)
+
