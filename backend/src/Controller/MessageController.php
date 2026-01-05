@@ -89,6 +89,21 @@ final class MessageController extends AbstractController
 
         $this->hub->publish($update);
 
-        return $this->json(['status' => 'sent'], 201);
+        return $this->json([
+            'id' => $message->getId(),
+            'content' => $message->getContent(),
+            'author' => $message->getAuthor()->getEmail(),
+            'createdAt' => $message->getCreatedAt()->format(\DateTime::ATOM),
+            'channel' => [
+                'id' => $message->getChannel()->getId(),
+                'name' => $message->getChannel()->getName(),
+                'workspace' => [
+                    'id' => $message->getChannel()->getWorkspace()->getId(),
+                    'name' => $message->getChannel()->getWorkspace()->getName(),
+                ]
+            ]
+        ], 201);
+
+
     }
 }

@@ -22,20 +22,15 @@ class Message
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['message:item', 'channel:item'])]
+    #[Groups(['message:item'])]
     private User $author;
 
-    /**
-     * Relation propriétaire vers Channel
-     * (doit correspondre à Channel::$messages via inversedBy)
-     */
     #[ORM\ManyToOne(targetEntity: Channel::class, inversedBy: 'messages')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['message:item'])]
     private Channel $channel;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    #[Groups(['message:item', 'channel:item'])]
+    #[Groups(['message:item'])]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\PrePersist]
@@ -44,48 +39,15 @@ class Message
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    // --------------- GETTERS ----------------
+    public function getId(): ?int { return $this->id; }
+    public function getContent(): string { return $this->content; }
+    public function setContent(string $content): self { $this->content = $content; return $this; }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getAuthor(): User { return $this->author; }
+    public function setAuthor(User $author): self { $this->author = $author; return $this; }
 
-    public function getContent(): string
-    {
-        return $this->content;
-    }
+    public function getChannel(): Channel { return $this->channel; }
+    public function setChannel(Channel $channel): self { $this->channel = $channel; return $this; }
 
-    public function setContent(string $content): self
-    {
-        $this->content = $content;
-        return $this;
-    }
-
-    public function getAuthor(): User
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(User $author): self
-    {
-        $this->author = $author;
-        return $this;
-    }
-
-    public function getChannel(): Channel
-    {
-        return $this->channel;
-    }
-
-    public function setChannel(Channel $channel): self
-    {
-        $this->channel = $channel;
-        return $this;
-    }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
+    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 }

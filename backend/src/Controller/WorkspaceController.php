@@ -42,12 +42,16 @@ final class WorkspaceController extends AbstractController
     )]
     public function list(WorkspaceRepository $repo): JsonResponse
     {
-        /** @var User $user */
         $user = $this->getUser();
 
         $workspaces = $repo->findBy(['owner' => $user]);
 
-        return $this->json($workspaces, 200, [], ['groups' => 'workspace:list']);
+        return $this->json(
+            $workspaces,
+            200,
+            [],
+            ['groups' => 'workspace:list']
+        );
     }
 
     #[Route('', methods: ['POST'])]
@@ -82,23 +86,21 @@ final class WorkspaceController extends AbstractController
     )]
     public function create(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        /** @var User $user */
         $user = $this->getUser();
-
         $data = json_decode($request->getContent(), true);
-        $name = $data['name'] ?? null;
-
-        if (!$name) {
-            return $this->json(['error' => 'name required'], 400);
-        }
 
         $workspace = new Workspace();
-        $workspace->setName($name);
+        $workspace->setName($data['name']);
         $workspace->setOwner($user);
 
         $em->persist($workspace);
         $em->flush();
 
-        return $this->json($workspace, 201, [], ['groups' => 'workspace:item']);
+        return $this->json(
+            $workspace,
+            201,
+            [],
+            ['groups' => 'workspace:item']
+        );
     }
 }

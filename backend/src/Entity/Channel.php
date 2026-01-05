@@ -14,11 +14,11 @@ class Channel
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['channel:list', 'channel:item', 'message:item'])]
+    #[Groups(['channel:item', 'workspace:item', 'message:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['channel:list', 'channel:item'])]
+    #[Groups(['channel:item', 'workspace:item'])]
     private string $name;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'channels')]
@@ -30,10 +30,7 @@ class Channel
     #[Groups(['channel:item'])]
     private Collection $members;
 
-    /**
-     * Relation inversée vers Message::channel
-     */
-    #[ORM\OneToMany(mappedBy: 'channel', targetEntity: Message::class, cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'channel', targetEntity: Message::class)]
     #[Groups(['channel:item'])]
     private Collection $messages;
 
@@ -48,45 +45,14 @@ class Channel
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
+    public function getName(): string { return $this->name; }
+    public function setName(string $name): self { $this->name = $name; return $this; }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    public function getWorkspace(): Workspace { return $this->workspace; }
+    public function setWorkspace(Workspace $workspace): self { $this->workspace = $workspace; return $this; }
 
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    public function getWorkspace(): Workspace
-    {
-        return $this->workspace;
-    }
-
-    public function setWorkspace(Workspace $workspace): self
-    {
-        $this->workspace = $workspace;
-        return $this;
-    }
-
-    public function getMembers(): Collection
-    {
-        return $this->members;
-    }
-
-    public function getMessages(): Collection
-    {
-        return $this->messages;
-    }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
+    public function getMembers(): Collection { return $this->members; }
+    public function getMessages(): Collection { return $this->messages; }
+    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 }
