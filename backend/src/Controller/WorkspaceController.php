@@ -103,4 +103,145 @@ final class WorkspaceController extends AbstractController
             ['groups' => 'workspace:item']
         );
     }
+
+
+
+
+    #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Get(
+        path: '/api/workspaces/{id}',
+        summary: 'Afficher un workspace',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Workspace trouvé'),
+            new OA\Response(response: 403, description: 'Accès refusé'),
+            new OA\Response(response: 404, description: 'Workspace introuvable'),
+        ]
+    )]
+    public function show(int $id, WorkspaceRepository $repo): JsonResponse
+    {
+        $workspace = $repo->find($id);
+        if (!$workspace) {
+            return $this->json(['error' => 'Workspace not found'], 404);
+        }
+
+        if ($workspace->getOwner() !== $this->getUser()) {
+            return $this->json(['error' => 'Forbidden'], 403);
+        }
+
+        return $this->json($workspace, 200, [], ['groups' => 'workspace:item']);
+    }
+
+    #[Route('/{id}', methods: ['PATCH'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Patch(
+        path: '/api/workspaces/{id}',
+        summary: 'Modifier un workspace',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'Nouveau nom')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Workspace mis à jour'),
+            new OA\Response(response: 400, description: 'Données invalides'),
+            new OA\Response(response: 403, description: 'Accès refusé'),
+            new OA\Response(response: 404, description: 'Workspace introuvable'),
+        ]
+    )]
+    public function update(
+        int $id,
+        Request $request,
+        WorkspaceRepository $repo,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $workspace = $repo->find($id);
+        if (!$workspace) {
+            return $this->json(['error' => 'Workspace not found'], 404);
+        }
+
+        if ($workspace->getOwner() !== $this->getUser()) {
+            return $this->json(['error' => 'Forbidden'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['name']) && is_string($data['name'])) {
+            $workspace->setName($data['name']);
+        } else {
+            return $this->json(['error' => 'Invalid name'], 400);
+        }
+
+        $em->flush();
+
+        return $this->json(
+            $workspace,
+            200,
+            [],
+            ['groups' => 'workspace:item']
+        );
+    }
+
+    #[Route('/{id}', methods: ['DELETE'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Delete(
+        path: '/api/workspaces/{id}',
+        summary: 'Supprimer un workspace et toutes ses dépendances',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 204, description: 'Workspace supprimé'),
+            new OA\Response(response: 403, description: 'Accès refusé'),
+            new OA\Response(response: 404, description: 'Workspace introuvable'),
+        ]
+    )]
+    public function delete(
+        int $id,
+        WorkspaceRepository $repo,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $workspace = $repo->find($id);
+        if (!$workspace) {
+            return $this->json(['error' => 'Workspace not found'], 404);
+        }
+
+        if ($workspace->getOwner() !== $this->getUser()) {
+            return $this->json(['error' => 'Forbidden'], 403);
+        }
+
+        // supprimer les messages
+        foreach ($workspace->getChannels() as $channel) {
+            foreach ($channel->getMessages() as $message) {
+                $em->remove($message);
+            }
+            $em->remove($channel);
+        }
+
+        $em->remove($workspace);
+        $em->flush();
+
+        return $this->json(null, 204);
+    }
+
+    
+
+
+
+
+
+
+
 }
