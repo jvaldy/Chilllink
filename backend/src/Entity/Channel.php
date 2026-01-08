@@ -14,11 +14,11 @@ class Channel
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['channel:item', 'workspace:item', 'message:item'])]
+    #[Groups(['channel:list', 'channel:item', 'workspace:item', 'message:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['channel:item', 'workspace:item'])]
+    #[Groups(['channel:list', 'channel:item', 'workspace:item', 'message:list'])]
     private string $name;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'channels')]

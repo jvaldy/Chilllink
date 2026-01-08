@@ -13,44 +13,71 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/**
+ * ChannelController
+ * -----------------
+ * Gestion des channels au sein d’un workspace.
+ *
+ * Responsabilités :
+ * - Lister les channels d’un workspace
+ * - Créer un channel
+ * - Afficher un channel
+ * - Modifier un channel
+ * - Supprimer un channel et ses messages
+ *
+ * Sécurité :
+ * - Authentification JWT obligatoire
+ * - Seul le propriétaire du workspace peut gérer ses channels
+ */
 #[Route('/api/workspaces/{workspaceId}/channels')]
 #[OA\Tag(name: 'Channels')]
 final class ChannelController extends AbstractController
 {
+    /**
+     * LISTER LES CHANNELS D’UN WORKSPACE
+     * --------------------------------
+     */
+    #[Route('', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Get(
+        path: '/api/workspaces/{workspaceId}/channels',
+        summary: 'Lister les channels d’un workspace',
+        security: [['bearerAuth' => []]]
+    )]
+    public function list(
+        int $workspaceId,
+        WorkspaceRepository $workspaceRepo
+    ): JsonResponse {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $workspace = $workspaceRepo->find($workspaceId);
+        if (!$workspace) {
+            return $this->json(['error' => 'Workspace not found'], 404);
+        }
+
+        if ($workspace->getOwner()->getId() !== $user->getId()) {
+            return $this->json(['error' => 'Forbidden'], 403);
+        }
+
+        return $this->json(
+            $workspace->getChannels(),
+            200,
+            [],
+            ['groups' => 'channel:list']
+        );
+    }
+
+    /**
+     * CRÉER UN CHANNEL
+     * ----------------
+     */
     #[Route('', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[OA\Post(
         path: '/api/workspaces/{workspaceId}/channels',
         summary: 'Créer un channel dans un workspace',
-        security: [['bearerAuth' => []]],
-        parameters: [
-            new OA\Parameter(name: 'workspaceId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['name'],
-                properties: [
-                    new OA\Property(property: 'name', type: 'string', example: 'general'),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(
-                response: 201,
-                description: 'Channel créé',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'id', type: 'integer', example: 10),
-                        new OA\Property(property: 'name', type: 'string', example: 'general'),
-                    ]
-                )
-            ),
-            new OA\Response(response: 400, description: 'Données invalides'),
-            new OA\Response(response: 401, description: 'Non authentifié'),
-            new OA\Response(response: 403, description: 'Accès refusé'),
-            new OA\Response(response: 404, description: 'Workspace introuvable'),
-        ]
+        security: [['bearerAuth' => []]]
     )]
     public function create(
         int $workspaceId,
@@ -73,8 +100,8 @@ final class ChannelController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $name = $data['name'] ?? null;
 
-        if (!$name) {
-            return $this->json(['error' => 'name required'], 400);
+        if (!$name || !is_string($name)) {
+            return $this->json(['error' => 'Invalid name'], 400);
         }
 
         $channel = new Channel();
@@ -87,21 +114,16 @@ final class ChannelController extends AbstractController
         return $this->json($channel, 201, [], ['groups' => 'channel:item']);
     }
 
-
-
-
-
+    /**
+     * AFFICHER UN CHANNEL
+     * ------------------
+     */
     #[Route('/{id}', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/channels/{id}',
         summary: 'Afficher un channel',
-        security: [['bearerAuth' => []]],
-        responses: [
-            new OA\Response(response: 200, description: 'Channel trouvé'),
-            new OA\Response(response: 403, description: 'Accès refusé'),
-            new OA\Response(response: 404, description: 'Channel introuvable'),
-        ]
+        security: [['bearerAuth' => []]]
     )]
     public function show(
         int $workspaceId,
@@ -117,7 +139,11 @@ final class ChannelController extends AbstractController
             return $this->json(['error' => 'Forbidden'], 403);
         }
 
-        $channel = $workspace->getChannels()->filter(fn ($c) => $c->getId() === $id)->first();
+        $channel = $workspace
+            ->getChannels()
+            ->filter(fn (Channel $c) => $c->getId() === $id)
+            ->first();
+
         if (!$channel) {
             return $this->json(['error' => 'Channel not found'], 404);
         }
@@ -125,33 +151,16 @@ final class ChannelController extends AbstractController
         return $this->json($channel, 200, [], ['groups' => 'channel:item']);
     }
 
-
-
-
+    /**
+     * MODIFIER UN CHANNEL
+     * ------------------
+     */
     #[Route('/{id}', methods: ['PATCH'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[OA\Patch(
         path: '/api/workspaces/{workspaceId}/channels/{id}',
         summary: 'Modifier un channel',
-        security: [['bearerAuth' => []]],
-        parameters: [
-            new OA\Parameter(name: 'workspaceId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(property: 'name', type: 'string', example: 'Nouveau channel')
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 200, description: 'Channel modifié'),
-            new OA\Response(response: 400, description: 'Données invalides'),
-            new OA\Response(response: 403, description: 'Accès refusé'),
-            new OA\Response(response: 404, description: 'Channel introuvable'),
-        ]
+        security: [['bearerAuth' => []]]
     )]
     public function update(
         int $workspaceId,
@@ -162,11 +171,11 @@ final class ChannelController extends AbstractController
     ): JsonResponse {
         $workspace = $workspaceRepo->find($workspaceId);
         if (!$workspace) {
-        return $this->json(['error' => 'Workspace not found'], 404);
+            return $this->json(['error' => 'Workspace not found'], 404);
         }
 
         if ($workspace->getOwner() !== $this->getUser()) {
-        return $this->json(['error' => 'Forbidden'], 403);
+            return $this->json(['error' => 'Forbidden'], 403);
         }
 
         $channel = $em->getRepository(Channel::class)->find($id);
@@ -185,21 +194,16 @@ final class ChannelController extends AbstractController
         return $this->json($channel, 200, [], ['groups' => 'channel:item']);
     }
 
+    /**
+     * SUPPRIMER UN CHANNEL
+     * -------------------
+     */
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[OA\Delete(
         path: '/api/workspaces/{workspaceId}/channels/{id}',
         summary: 'Supprimer un channel et ses messages',
-        security: [['bearerAuth' => []]],
-        parameters: [
-            new OA\Parameter(name: 'workspaceId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
-        ],
-        responses: [
-            new OA\Response(response: 204, description: 'Channel supprimé'),
-            new OA\Response(response: 403, description: 'Accès refusé'),
-            new OA\Response(response: 404, description: 'Channel introuvable'),
-        ]
+        security: [['bearerAuth' => []]]
     )]
     public function delete(
         int $workspaceId,
@@ -221,7 +225,6 @@ final class ChannelController extends AbstractController
             return $this->json(['error' => 'Channel not found'], 404);
         }
 
-        // delete messages first
         foreach ($channel->getMessages() as $message) {
             $em->remove($message);
         }
@@ -231,8 +234,4 @@ final class ChannelController extends AbstractController
 
         return $this->json(null, 204);
     }
-
-
-
-
 }

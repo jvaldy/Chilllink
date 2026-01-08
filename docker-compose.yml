@@ -68,7 +68,8 @@ services:
       MERCURE_SUBSCRIBER_JWT_KEY: ChangeThisMercureSecretInProd
       MERCURE_JWT_SECRET: ChangeThisMercureSecretInProd
       MERCURE_EXTRA_DIRECTIVES: |
-        cors_origins *
+        cors_origins http://localhost:5174
+        cors_credentials true
         anonymous
     ports:
       - "3000:3000"
