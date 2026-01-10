@@ -29,29 +29,28 @@ export function useMessages(channelId) {
       });
   }, [channelId]);
 
-  // Fonction d’ajout local (utilisé aussi par Mercure)
-  const addMessage = useCallback(
-    (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    },
-    [setMessages]
-  );
+  // Ajout centralisé des messages (Mercure uniquement)
+  const addMessage = useCallback((msg) => {
+    setMessages((prev) => {
+      // Sécurité anti-doublon (au cas où)
+      if (prev.some((m) => m.id === msg.id)) {
+        return prev;
+      }
+      return [...prev, msg];
+    });
+  }, []);
 
-  // Souscription Mercure : on ajoute le message reçu en temps réel
+  // Souscription Mercure : source UNIQUE de mise à jour temps réel
   useMercure(channelId, (data) => {
-    // data doit être un objet message avec au minimum :
-    // { id, content, author, createdAt }
     addMessage(data);
   });
 
   // Envoi d’un nouveau message
   const sendMessage = async (content) => {
     try {
-      const newMsg = await postMessage(channelId, content);
-
-      // On ajoute aussi localement (optimistic ou non)
-      addMessage(newMsg);
-
+      await postMessage(channelId, content);
+      // ❌ On NE touche PAS au state ici
+      // Mercure s’en chargera
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -63,6 +62,5 @@ export function useMessages(channelId) {
     loading,
     error,
     sendMessage,
-    addMessage,
   };
 }

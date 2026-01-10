@@ -1,7 +1,8 @@
 /**
  * WorkspaceList.jsx
  * -----------------
- * Affiche la liste des workspaces et gère la sélection.
+ * Affiche la liste des workspaces (style Discord).
+ * Sélection via icône + tooltip.
  */
 
 export default function WorkspaceList({
@@ -12,31 +13,50 @@ export default function WorkspaceList({
   error,
 }) {
   if (loading) {
-    return <div className="sidebar-item">Chargement...</div>;
+    return (
+      <div className="workspace-list">
+        <div className="workspace-placeholder">...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="sidebar-item error">Erreur : {error}</div>;
+    return (
+      <div className="workspace-list">
+        <div className="workspace-placeholder error">
+          Erreur
+        </div>
+      </div>
+    );
   }
 
-  if (workspaces.length === 0) {
-    return <div className="sidebar-item">Aucun workspace</div>;
+  if (!workspaces || workspaces.length === 0) {
+    return (
+      <div className="workspace-list">
+        <div className="workspace-placeholder">
+          Ø
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
+    <div className="workspace-list">
       {workspaces.map((ws) => (
-        <div
+        <button
           key={ws.id}
-          className={`sidebar-item ${
-            ws.id === selectedWorkspaceId ? 'active' : ''
+          type="button"
+          className={`workspace-item ${
+            ws.id === selectedWorkspaceId ? "active" : ""
           }`}
+          data-name={ws.name}
           onClick={() => onSelect(ws.id)}
         >
-          <span className="icon">🧩</span>
-          {ws.name}
-        </div>
+          <span className="workspace-avatar">
+            {ws.name?.[0] ?? "W"}
+          </span>
+        </button>
       ))}
-    </>
+    </div>
   );
 }

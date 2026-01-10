@@ -1,45 +1,52 @@
-/**
- * ChannelList.jsx
- * --------------
- * Liste des channels d’un workspace + sélection.
- */
+// import "./ChannelList.css";
 
 export default function ChannelList({
   channels,
   selectedChannelId,
   onSelect,
-  loading,
-  error,
   disabled = false,
 }) {
   if (disabled) {
-    return <div className="sidebar-item">Sélectionnez un workspace</div>;
+    return (
+      <div className="channel-list">
+        <div className="channel-empty">Sélectionne un workspace</div>
+      </div>
+    );
   }
 
-  if (loading) {
-    return <div className="sidebar-item">Chargement des channels...</div>;
+  if (!channels || channels.length === 0) {
+    return (
+      <div className="channel-list">
+        <div className="channel-empty">Aucun channel</div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="sidebar-item error">Erreur : {error}</div>;
-  }
-
-  if (channels.length === 0) {
-    return <div className="sidebar-item">Aucun channel</div>;
-  }
+  // Exemple simple de regroupement (tu peux l’affiner plus tard)
+  const groups = {
+    TEXTUEL: channels,
+  };
 
   return (
-    <>
-      {channels.map((ch) => (
-        <div
-          key={ch.id}
-          className={`sidebar-item ${ch.id === selectedChannelId ? "active" : ""}`}
-          onClick={() => onSelect(ch.id)}
-        >
-          <span className="icon">#️⃣</span>
-          {ch.name}
+    <div className="channel-list">
+      {Object.entries(groups).map(([groupName, groupChannels]) => (
+        <div key={groupName} className="channel-group">
+          <div className="channel-group-title">{groupName}</div>
+
+          {groupChannels.map((channel) => (
+            <div
+              key={channel.id}
+              className={`channel-item ${
+                channel.id === selectedChannelId ? "active" : ""
+              }`}
+              onClick={() => onSelect(channel.id)}
+            >
+              <span className="channel-hash">#</span>
+              <span className="channel-name">{channel.name}</span>
+            </div>
+          ))}
         </div>
       ))}
-    </>
+    </div>
   );
 }
