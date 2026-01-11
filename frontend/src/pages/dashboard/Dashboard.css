@@ -232,3 +232,17 @@
   padding: 12px;
   display: flex;
 }
+
+
+
+
+.typing-indicator {
+  padding: 6px 16px 0 16px;
+  font-size: 13px;
+  color: #949ba4;
+  font-style: italic;
+  user-select: none;
+}
+
+
+

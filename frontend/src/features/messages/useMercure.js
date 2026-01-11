@@ -1,54 +1,55 @@
 /**
  * useMercure.js
  * -------------
- * Hook pour souscrire à un topic Mercure (messages)
- * Version STABLE (anti-duplication)
+ * Hook pour souscrire à Mercure (messages + typing)
+ * Version stable (anti-duplication / callback stable)
  */
 
 import { useEffect, useRef } from "react";
 
-export function useMercure(channelId, onMessage) {
-  const onMessageRef = useRef(onMessage);
+export function useMercure(channelId, onEvent) {
+  const onEventRef = useRef(onEvent);
 
-  // Toujours garder la dernière version de onMessage
+  // Toujours garder la dernière version de callback sans relancer la subscription
   useEffect(() => {
-    onMessageRef.current = onMessage;
-  }, [onMessage]);
+    onEventRef.current = onEvent;
+  }, [onEvent]);
 
   useEffect(() => {
     if (!channelId) return;
 
     const mercureUrl = import.meta.env.VITE_MERCURE_URL;
     const url = new URL(mercureUrl);
-    url.searchParams.append("topic", `channel/${channelId}`);
 
-    console.log("Mercure subscribing to:", `channel/${channelId}`);
+    // ✅ 2 topics : messages + typing
+    url.searchParams.append("topic", `channel/${channelId}`);
+    url.searchParams.append("topic", `typing/channel/${channelId}`);
 
     const eventSource = new EventSource(url.toString(), {
       withCredentials: true,
     });
 
     eventSource.onopen = () => {
-      console.log("Mercure connected:", `channel/${channelId}`);
+      console.log("Mercure connected:", url.toString());
     };
 
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        onMessageRef.current?.(data);
+        onEventRef.current?.(data);
       } catch (err) {
-        console.error("Mercure parse error:", err);
+        console.error("Mercure parse error:", err, event?.data);
       }
     };
 
     eventSource.onerror = (err) => {
       console.error("Mercure error:", err);
+      // On ferme pour éviter boucle de reconnexion infinie si CORS / auth / offline
       eventSource.close();
     };
 
     return () => {
-      console.log("Mercure unsubscribing from:", `channel/${channelId}`);
       eventSource.close();
     };
-  }, [channelId]); // 🔥 DEPENDANCE UNIQUE
+  }, [channelId]);
 }

@@ -1,16 +1,31 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { fetchMessages, postMessage } from "./messageService";
 import { useMercure } from "./useMercure";
 
+/**
+ * Hook métier Messages + Typing (Mercure)
+ * Export nommé : useMessages
+ */
 export function useMessages(channelId) {
   const [messages, setMessages] = useState([]);
+  const [typingUsers, setTypingUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Charger les messages à l’ouverture d’un channel
+  // Gestion propre des timeouts typing par userId
+  const typingTimeoutsRef = useRef(new Map());
+
+  /* =======================
+     FETCH MESSAGES (REST)
+  ======================= */
   useEffect(() => {
     if (!channelId) {
       setMessages([]);
+      setTypingUsers([]);
+
+      typingTimeoutsRef.current.forEach((t) => clearTimeout(t));
+      typingTimeoutsRef.current.clear();
+
       return;
     }
 
@@ -18,39 +33,70 @@ export function useMessages(channelId) {
     setError(null);
 
     fetchMessages(channelId)
-      .then((data) => {
-        setMessages(data);
-      })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then((data) => setMessages(data))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, [channelId]);
 
-  // Ajout centralisé des messages (Mercure uniquement)
+  /* =======================
+     MESSAGE HANDLING
+  ======================= */
   const addMessage = useCallback((msg) => {
     setMessages((prev) => {
-      // Sécurité anti-doublon (au cas où)
-      if (prev.some((m) => m.id === msg.id)) {
-        return prev;
-      }
+      if (prev.some((m) => m.id === msg.id)) return prev;
       return [...prev, msg];
     });
   }, []);
 
-  // Souscription Mercure : source UNIQUE de mise à jour temps réel
-  useMercure(channelId, (data) => {
-    addMessage(data);
+  /* =======================
+     TYPING HANDLING
+  ======================= */
+  const handleTypingEvent = useCallback((data) => {
+    if (!data?.userId) return;
+
+    setTypingUsers((prev) => {
+      if (prev.some((u) => u.userId === data.userId)) return prev;
+      return [...prev, data];
+    });
+
+    // reset timeout pour ce user
+    const existing = typingTimeoutsRef.current.get(data.userId);
+    if (existing) clearTimeout(existing);
+
+    const timeout = setTimeout(() => {
+      setTypingUsers((prev) => prev.filter((u) => u.userId !== data.userId));
+      typingTimeoutsRef.current.delete(data.userId);
+    }, 2500);
+
+    typingTimeoutsRef.current.set(data.userId, timeout);
+  }, []);
+
+  /* =======================
+     MERCURE SUBSCRIPTION
+  ======================= */
+  useMercure(channelId, (event) => {
+    if (!event || !event.type) return;
+
+    switch (event.type) {
+      case "message":
+        addMessage(event.payload);
+        break;
+
+      case "typing":
+        handleTypingEvent(event.payload);
+        break;
+
+      default:
+        console.warn("Unknown Mercure event type:", event.type);
+    }
   });
 
-  // Envoi d’un nouveau message
+  /* =======================
+     SEND MESSAGE
+  ======================= */
   const sendMessage = async (content) => {
     try {
       await postMessage(channelId, content);
-      // ❌ On NE touche PAS au state ici
-      // Mercure s’en chargera
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -59,6 +105,7 @@ export function useMessages(channelId) {
 
   return {
     messages,
+    typingUsers,
     loading,
     error,
     sendMessage,
