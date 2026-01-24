@@ -5,10 +5,11 @@
  * - chargement
  * - erreur
  * - sélection
+ * - création
  */
 
-import { useEffect, useState } from 'react';
-import { fetchWorkspaces } from './workspaceService';
+import { useEffect, useState, useCallback } from "react";
+import { fetchWorkspaces, createWorkspace } from "./workspaceService";
 
 export function useWorkspaces() {
   const [workspaces, setWorkspaces] = useState([]);
@@ -16,13 +17,22 @@ export function useWorkspaces() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Création d’un workspace + mise à jour state
+  const addWorkspace = useCallback(async (name) => {
+    const workspace = await createWorkspace(name);
+
+    setWorkspaces((prev) => [...prev, workspace]);
+    setSelectedWorkspaceId(workspace.id);
+
+    return workspace;
+  }, []);
+
   useEffect(() => {
     let mounted = true;
 
     fetchWorkspaces()
       .then((data) => {
         if (!mounted) return;
-
         setWorkspaces(data);
         setSelectedWorkspaceId(data[0]?.id ?? null);
       })
@@ -45,5 +55,6 @@ export function useWorkspaces() {
     setSelectedWorkspaceId,
     loading,
     error,
+    addWorkspace, // ✅ indispensable pour WorkspaceList
   };
 }

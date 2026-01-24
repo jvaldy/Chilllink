@@ -17,3 +17,13 @@ import { endpoints } from "../../shared/api/endpoints";
 export function fetchChannelsByWorkspace(workspaceId) {
   return httpRequest("GET", endpoints.workspaces.channels(workspaceId));
 }
+
+export function createChannel(workspaceId, name) {
+  return httpRequest(
+    "POST",
+    endpoints.workspaces.channels(workspaceId),
+    {
+      body: { name },
+    }
+  );
+}

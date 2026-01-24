@@ -1,16 +1,20 @@
 /**
  * useChannels.js
  * -------------
- * Hook métier pour charger les channels d’un workspace sélectionné.
+ * Hook métier pour gérer les channels d’un workspace.
  *
  * Responsabilités :
- * - charger channels quand workspaceId change
- * - gérer loading / error
- * - gérer selectedChannelId
+ * - chargement
+ * - erreur
+ * - sélection
+ * - création
  */
 
 import { useEffect, useState } from "react";
-import { fetchChannelsByWorkspace } from "./channelService";
+import {
+  fetchChannelsByWorkspace,
+  createChannel,
+} from "./channelService";
 
 export function useChannels(workspaceId) {
   const [channels, setChannels] = useState([]);
@@ -18,8 +22,19 @@ export function useChannels(workspaceId) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /* =======================
+     CREATE CHANNEL
+  ======================= */
+  const addChannel = async (name) => {
+    const channel = await createChannel(workspaceId, name);
+    setChannels((prev) => [...prev, channel]);
+    setSelectedChannelId(channel.id);
+  };
+
+  /* =======================
+     FETCH CHANNELS
+  ======================= */
   useEffect(() => {
-    // Si aucun workspace sélectionné : reset total
     if (!workspaceId) {
       setChannels([]);
       setSelectedChannelId(null);
@@ -59,6 +74,7 @@ export function useChannels(workspaceId) {
     channels,
     selectedChannelId,
     setSelectedChannelId,
+    addChannel, // ✅ exposée
     loading,
     error,
   };

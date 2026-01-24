@@ -1,62 +1,90 @@
 /**
  * WorkspaceList.jsx
  * -----------------
- * Affiche la liste des workspaces (style Discord).
- * Sélection via icône + tooltip.
+ * Liste des workspaces + création via modal
  */
+
+import { useState } from "react";
+import "./Workspace.css";
 
 export default function WorkspaceList({
   workspaces,
   selectedWorkspaceId,
   onSelect,
-  loading,
-  error,
+  addWorkspace,
 }) {
-  if (loading) {
-    return (
-      <div className="workspace-list">
-        <div className="workspace-placeholder">...</div>
-      </div>
-    );
-  }
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  if (error) {
-    return (
-      <div className="workspace-list">
-        <div className="workspace-placeholder error">
-          Erreur
-        </div>
-      </div>
-    );
-  }
+  const handleCreate = async () => {
+    if (!name.trim()) return;
 
-  if (!workspaces || workspaces.length === 0) {
-    return (
-      <div className="workspace-list">
-        <div className="workspace-placeholder">
-          Ø
-        </div>
-      </div>
-    );
-  }
+    setLoading(true);
+    try {
+      await addWorkspace(name.trim());
+      setName("");
+      setIsOpen(false);
+    } catch (e) {
+      // Optionnel: tu peux afficher un toast/UI error ici
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="workspace-list">
+    <>
+      {/* LISTE DES WORKSPACES */}
       {workspaces.map((ws) => (
         <button
           key={ws.id}
-          type="button"
           className={`workspace-item ${
             ws.id === selectedWorkspaceId ? "active" : ""
           }`}
-          data-name={ws.name}
           onClick={() => onSelect(ws.id)}
+          title={ws.name}
         >
-          <span className="workspace-avatar">
-            {ws.name?.[0] ?? "W"}
-          </span>
+          {ws.name.charAt(0).toUpperCase()}
         </button>
       ))}
-    </div>
+
+      {/* BOUTON + */}
+      <button
+        className="workspace-item add"
+        onClick={() => setIsOpen(true)}
+        title="Créer un workspace"
+      >
+        +
+      </button>
+
+      {/* MODAL */}
+      {isOpen && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h3>Créer un workspace</h3>
+
+            <input
+              type="text"
+              placeholder="Nom du workspace"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCreate();
+                if (e.key === "Escape") setIsOpen(false);
+              }}
+            />
+
+            <div className="modal-actions">
+              <button onClick={() => setIsOpen(false)}>Annuler</button>
+              <button onClick={handleCreate} disabled={loading || !name.trim()}>
+                {loading ? "Création…" : "Créer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

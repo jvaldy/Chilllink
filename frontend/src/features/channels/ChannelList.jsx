@@ -1,52 +1,67 @@
-// import "./ChannelList.css";
+/**
+ * ChannelList.jsx
+ * ---------------
+ * Liste des channels + création
+ */
+
+import { useState } from "react";
 
 export default function ChannelList({
   channels,
   selectedChannelId,
   onSelect,
-  disabled = false,
+  onCreate,
+  disabled,
 }) {
-  if (disabled) {
-    return (
-      <div className="channel-list">
-        <div className="channel-empty">Sélectionne un workspace</div>
-      </div>
-    );
-  }
+  const [creating, setCreating] = useState(false);
+  const [name, setName] = useState("");
 
-  if (!channels || channels.length === 0) {
-    return (
-      <div className="channel-list">
-        <div className="channel-empty">Aucun channel</div>
-      </div>
-    );
-  }
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
 
-  // Exemple simple de regroupement (tu peux l’affiner plus tard)
-  const groups = {
-    TEXTUEL: channels,
+    onCreate(name.trim());
+    setName("");
+    setCreating(false);
   };
 
   return (
     <div className="channel-list">
-      {Object.entries(groups).map(([groupName, groupChannels]) => (
-        <div key={groupName} className="channel-group">
-          <div className="channel-group-title">{groupName}</div>
-
-          {groupChannels.map((channel) => (
-            <div
-              key={channel.id}
-              className={`channel-item ${
-                channel.id === selectedChannelId ? "active" : ""
-              }`}
-              onClick={() => onSelect(channel.id)}
-            >
-              <span className="channel-hash">#</span>
-              <span className="channel-name">{channel.name}</span>
-            </div>
-          ))}
-        </div>
+      {channels.map((c) => (
+        <button
+          key={c.id}
+          className={`channel-item ${
+            c.id === selectedChannelId ? "active" : ""
+          }`}
+          onClick={() => onSelect(c.id)}
+        >
+          # {c.name}
+        </button>
       ))}
+
+      {!disabled && (
+        <>
+          {creating ? (
+            <form onSubmit={submit} className="channel-create">
+              <input
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nouveau channel"
+                onBlur={() => setCreating(false)}
+              />
+            </form>
+          ) : (
+            <button
+              className="channel-add"
+              onClick={() => setCreating(true)}
+              title="Créer un channel"
+            >
+              + Ajouter
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }

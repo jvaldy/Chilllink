@@ -1,0 +1,70 @@
+.workspace-item {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #313338;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.workspace-item:hover {
+  background: var(--primary-color);
+  border-radius: 16px;
+}
+
+.workspace-item.active {
+  background: var(--primary-color);
+  border-radius: 16px;
+}
+
+.workspace-item.add {
+  font-size: 24px;
+  line-height: 0;
+}
+
+/* MODAL */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #2b2d31;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal h3 {
+  margin: 0;
+}
+
+.modal input {
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-actions button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
