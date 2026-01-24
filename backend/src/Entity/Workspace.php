@@ -30,6 +30,11 @@ class Workspace
     #[Groups(['workspace:item'])]
     private Collection $channels;
 
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'workspace_user')]
+    #[Groups(['workspace:item'])]
+    private Collection $members;
+
     #[ORM\Column(type: 'datetime_immutable')]
     #[Groups(['workspace:item'])]
     private \DateTimeImmutable $createdAt;
@@ -37,16 +42,63 @@ class Workspace
     public function __construct()
     {
         $this->channels = new ArrayCollection();
+        $this->members = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getOwner(): User { return $this->owner; }
-    public function setOwner(User $owner): self { $this->owner = $owner; return $this; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-    public function getChannels(): Collection { return $this->channels; }
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getOwner(): User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(User $owner): self
+    {
+        $this->owner = $owner;
+        return $this;
+    }
+
+    public function getChannels(): Collection
+    {
+        return $this->channels;
+    }
+
+    public function getMembers(): Collection
+    {
+        return $this->members;
+    }
+
+    public function addMember(User $user): self
+    {
+        if (!$this->members->contains($user)) {
+            $this->members->add($user);
+        }
+        return $this;
+    }
+
+    public function removeMember(User $user): self
+    {
+        $this->members->removeElement($user);
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }
