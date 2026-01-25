@@ -167,7 +167,7 @@ final class WorkspaceController extends AbstractController
         }
 
         if (!$workspace->getMembers()->contains($user)) {
-            return $this->json(['error' => 'Forbidden'], 403);
+            $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $workspace);
         }
 
         return $this->json(
@@ -231,7 +231,7 @@ final class WorkspaceController extends AbstractController
         }
 
         if ($workspace->getOwner() !== $user) {
-            return $this->json(['error' => 'Forbidden'], 403);
+            $this->denyAccessUnlessGranted('WORKSPACE_MANAGE_MEMBERS', $workspace);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -293,7 +293,7 @@ final class WorkspaceController extends AbstractController
         }
 
         if ($workspace->getOwner() !== $user) {
-            return $this->json(['error' => 'Forbidden'], 403);
+            $this->denyAccessUnlessGranted('WORKSPACE_MANAGE_MEMBERS', $workspace);
         }
 
         foreach ($workspace->getChannels() as $channel) {
@@ -311,95 +311,7 @@ final class WorkspaceController extends AbstractController
 
 
 
-    /**
-     * AJOUTER UN MEMBRE AU WORKSPACE
-     * ------------------------------
-     * Réservé au propriétaire du workspace.
-     */
-    #[Route('/{id}/members', methods: ['POST'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    #[OA\Post(
-        path: '/api/workspaces/{id}/members',
-        summary: 'Ajouter un membre à un workspace (owner uniquement)',
-        security: [['bearerAuth' => []]],
-        parameters: [
-            new OA\Parameter(
-                name: 'id',
-                in: 'path',
-                required: true,
-                schema: new OA\Schema(type: 'integer'),
-                example: 1
-            )
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['userId'],
-                properties: [
-                    new OA\Property(property: 'userId', type: 'integer', example: 2),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 200, description: 'Membre ajouté'),
-            new OA\Response(response: 400, description: 'Données invalides'),
-            new OA\Response(response: 403, description: 'Accès refusé'),
-            new OA\Response(response: 404, description: 'Workspace ou utilisateur introuvable'),
-        ]
-    )]
-    public function addMember(
-        int $id,
-        Request $request,
-        WorkspaceRepository $workspaceRepo,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        /** @var User $currentUser */
-        $currentUser = $this->getUser();
-
-        $workspace = $workspaceRepo->find($id);
-        if (!$workspace) {
-            return $this->json(['error' => 'Workspace not found'], 404);
-        }
-
-        // Seul le propriétaire peut inviter
-        if ($workspace->getOwner() !== $currentUser) {
-            return $this->json(['error' => 'Forbidden'], 403);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        if (!isset($data['userId']) || !is_int($data['userId'])) {
-            return $this->json(['error' => 'Invalid userId'], 400);
-        }
-
-        $userToAdd = $em->getRepository(User::class)->find($data['userId']);
-        if (!$userToAdd) {
-            return $this->json(['error' => 'User not found'], 404);
-        }
-
-        // Anti-doublon
-        if ($workspace->getMembers()->contains($userToAdd)) {
-            return $this->json(['status' => 'already_member'], 200);
-        }
-
-        // Ajout au workspace
-        $workspace->addMember($userToAdd);
-
-        // 🔥 OPTION UX RECOMMANDÉE :
-        // ajout automatique à tous les channels existants
-        foreach ($workspace->getChannels() as $channel) {
-            if (!$channel->getMembers()->contains($userToAdd)) {
-                $channel->getMembers()->add($userToAdd);
-            }
-        }
-
-        $em->flush();
-
-        return $this->json([
-            'status' => 'member_added',
-            'userId' => $userToAdd->getId(),
-            'workspaceId' => $workspace->getId(),
-        ]);
-    }
+    
 
 
 

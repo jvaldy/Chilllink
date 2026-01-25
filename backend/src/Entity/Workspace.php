@@ -91,14 +91,28 @@ class Workspace
         return $this;
     }
 
-    public function removeMember(User $user): self
-    {
-        $this->members->removeElement($user);
-        return $this;
-    }
 
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
+
+    public function isMember(User $user): bool
+    {
+        return $this->members->contains($user);
+    }
+
+
+
+    public function removeMember(User $user): self
+    {
+        if ($this->owner === $user) {
+            return $this;
+        }
+
+        $this->members->removeElement($user);
+
+        return $this;
+    }
+
 }

@@ -27,6 +27,7 @@ class Channel
     private Workspace $workspace;
 
     #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'channel_user')]
     #[Groups(['channel:item'])]
     private Collection $members;
 
@@ -37,6 +38,10 @@ class Channel
     #[ORM\Column(type: 'datetime_immutable')]
     #[Groups(['channel:item'])]
     private \DateTimeImmutable $createdAt;
+
+
+
+
 
     public function __construct()
     {
@@ -55,4 +60,29 @@ class Channel
     public function getMembers(): Collection { return $this->members; }
     public function getMessages(): Collection { return $this->messages; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+
+
+    
+
+    public function isMember(User $user): bool
+    {
+        return $this->members->contains($user);
+    }
+
+    public function addMember(User $user): self
+    {
+        if (!$this->members->contains($user)) {
+            $this->members->add($user);
+        }
+        return $this;
+    }
+
+    public function removeMember(User $user): self
+    {
+        $this->members->removeElement($user);
+        return $this;
+    }
+
+
+
 }

@@ -16,28 +16,15 @@ class ChannelRepository extends ServiceEntityRepository
         parent::__construct($registry, Channel::class);
     }
 
-    //    /**
-    //     * @return Channel[] Returns an array of Channel objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Channel
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findOneInWorkspace(int $channelId, int $workspaceId): ?Channel
+    {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.workspace', 'w')
+            ->andWhere('c.id = :channelId')
+            ->andWhere('w.id = :workspaceId')
+            ->setParameter('channelId', $channelId)
+            ->setParameter('workspaceId', $workspaceId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
