@@ -1,0 +1,112 @@
+/* =========================
+   CHANNEL LIST
+========================= */
+
+.channel-item {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: transparent;
+  border: none;
+  color: #b9bbbe;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.channel-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.channel-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.channel-item.add {
+  margin-top: 8px;
+  font-weight: bold;
+  color: #3ba55d;
+}
+
+.channel-item.add:hover {
+  background: rgba(59, 165, 93, 0.15);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: #2f3136;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.modal h3 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 8px;
+  background: #202225;
+  border: 1px solid #202225;
+  border-radius: 4px;
+  color: #ffffff;
+  outline: none;
+}
+
+.modal input::placeholder {
+  color: #72767d;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modal-actions button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.modal-actions button:first-child {
+  background: transparent;
+  color: #b9bbbe;
+}
+
+.modal-actions button:first-child:hover {
+  color: #ffffff;
+}
+
+.modal-actions button:last-child {
+  background: #5865f2;
+  color: #ffffff;
+}
+
+.modal-actions button:last-child:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

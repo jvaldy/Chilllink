@@ -20,7 +20,9 @@ import "./Dashboard.css";
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  /* WORKSPACES */
+  /* =======================
+     WORKSPACES
+  ======================= */
   const {
     workspaces,
     selectedWorkspaceId,
@@ -28,7 +30,9 @@ export default function Dashboard() {
     addWorkspace,
   } = useWorkspaces();
 
-  /* CHANNELS */
+  /* =======================
+     CHANNELS
+  ======================= */
   const {
     channels,
     selectedChannelId,
@@ -36,7 +40,9 @@ export default function Dashboard() {
     addChannel,
   } = useChannels(selectedWorkspaceId);
 
-  /* MESSAGES */
+  /* =======================
+     MESSAGES
+  ======================= */
   const {
     messages,
     typingUsers,
@@ -64,6 +70,7 @@ export default function Dashboard() {
           onSelect={setSelectedWorkspaceId}
           addWorkspace={addWorkspace}
         />
+
         <button onClick={logout} className="workspace-logout">
           Logout
         </button>
@@ -76,7 +83,7 @@ export default function Dashboard() {
           channels={channels}
           selectedChannelId={selectedChannelId}
           onSelect={setSelectedChannelId}
-          onCreate={addChannel}
+          addChannel={addChannel}  
         />
       </aside>
 

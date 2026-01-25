@@ -10,7 +10,7 @@
  * - création
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   fetchChannelsByWorkspace,
   createChannel,
@@ -25,11 +25,21 @@ export function useChannels(workspaceId) {
   /* =======================
      CREATE CHANNEL
   ======================= */
-  const addChannel = async (name) => {
-    const channel = await createChannel(workspaceId, name);
-    setChannels((prev) => [...prev, channel]);
-    setSelectedChannelId(channel.id);
-  };
+  const addChannel = useCallback(
+    async (name) => {
+      if (!workspaceId || !name?.trim()) return;
+
+      try {
+        const channel = await createChannel(workspaceId, name.trim());
+        setChannels((prev) => [...prev, channel]);
+        setSelectedChannelId(channel.id);
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      }
+    },
+    [workspaceId]
+  );
 
   /* =======================
      FETCH CHANNELS
@@ -74,7 +84,7 @@ export function useChannels(workspaceId) {
     channels,
     selectedChannelId,
     setSelectedChannelId,
-    addChannel, // ✅ exposée
+    addChannel,        // 🔥 exposé correctement
     loading,
     error,
   };

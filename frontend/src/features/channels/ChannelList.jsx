@@ -1,67 +1,89 @@
 /**
  * ChannelList.jsx
- * ---------------
- * Liste des channels + création
+ * ----------------
+ * Liste des channels + création via modal
  */
 
 import { useState } from "react";
+import "./Channel.css";
 
 export default function ChannelList({
   channels,
   selectedChannelId,
   onSelect,
-  onCreate,
-  disabled,
+  addChannel,
+  disabled = false,
 }) {
-  const [creating, setCreating] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const submit = (e) => {
-    e.preventDefault();
+  const handleCreate = async () => {
     if (!name.trim()) return;
 
-    onCreate(name.trim());
-    setName("");
-    setCreating(false);
+    setLoading(true);
+    try {
+      await addChannel(name.trim());
+      setName("");
+      setIsOpen(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="channel-list">
-      {channels.map((c) => (
+    <>
+      {/* LISTE DES CHANNELS */}
+      {channels.map((channel) => (
         <button
-          key={c.id}
+          key={channel.id}
           className={`channel-item ${
-            c.id === selectedChannelId ? "active" : ""
+            channel.id === selectedChannelId ? "active" : ""
           }`}
-          onClick={() => onSelect(c.id)}
+          onClick={() => onSelect(channel.id)}
+          title={channel.name}
         >
-          # {c.name}
+          # {channel.name}
         </button>
       ))}
 
+      {/* BOUTON AJOUT */}
       {!disabled && (
-        <>
-          {creating ? (
-            <form onSubmit={submit} className="channel-create">
-              <input
-                autoFocus
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nouveau channel"
-                onBlur={() => setCreating(false)}
-              />
-            </form>
-          ) : (
-            <button
-              className="channel-add"
-              onClick={() => setCreating(true)}
-              title="Créer un channel"
-            >
-              + Ajouter
-            </button>
-          )}
-        </>
+        <button
+          className="channel-item add"
+          onClick={() => setIsOpen(true)}
+          title="Créer un channel"
+        >
+          + Ajouter un channel
+        </button>
       )}
-    </div>
+
+      {/* MODAL CRÉATION */}
+      {isOpen && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h3>Créer un channel</h3>
+
+            <input
+              type="text"
+              placeholder="Nom du channel"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+            />
+
+            <div className="modal-actions">
+              <button onClick={() => setIsOpen(false)}>Annuler</button>
+              <button
+                onClick={handleCreate}
+                disabled={loading || !name.trim()}
+              >
+                {loading ? "Création…" : "Créer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
