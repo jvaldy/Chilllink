@@ -2,11 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Channel;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Repository\ChannelRepository;
-use App\Service\MessagePublisher;
 use App\Service\MessageNormalizer;
+use App\Service\MessagePublisher;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,23 +24,15 @@ final class MessageController extends AbstractController
         private MessagePublisher $messagePublisher
     ) {}
 
-    private function denyIfNotChannelMember(int $channelId, ChannelRepository $channelRepo): \App\Entity\Channel
+    private function getChannelOrDeny(int $channelId, ChannelRepository $channelRepo): Channel
     {
-        /** @var User $user */
-        $user = $this->getUser();
-
         $channel = $channelRepo->find($channelId);
         if (!$channel) {
             throw $this->createNotFoundException('Channel not found');
         }
 
-        // 1) membre du workspace requis
-        $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $channel->getWorkspace());
-
-        // 2) channel verrouillé => membre du channel requis
-        if (!$channel->getMembers()->contains($user)) {
-            throw $this->createAccessDeniedException('Forbidden');
-        }
+        // ✅ vérifie : membre workspace + membre channel
+        $this->denyAccessUnlessGranted('CHANNEL_VIEW', $channel);
 
         return $channel;
     }
@@ -55,7 +48,7 @@ final class MessageController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $channel = $this->denyIfNotChannelMember($channelId, $channelRepo);
+        $channel = $this->getChannelOrDeny($channelId, $channelRepo);
 
         $data = json_decode($request->getContent(), true);
         if (!isset($data['content']) || !is_string($data['content'])) {
@@ -84,7 +77,7 @@ final class MessageController extends AbstractController
         ChannelRepository $channelRepo,
         EntityManagerInterface $em
     ): JsonResponse {
-        $this->denyIfNotChannelMember($channelId, $channelRepo);
+        $this->getChannelOrDeny($channelId, $channelRepo);
 
         $message = $em->getRepository(Message::class)->find($id);
         if (!$message || $message->getChannel()->getId() !== $channelId) {
@@ -114,7 +107,7 @@ final class MessageController extends AbstractController
         ChannelRepository $channelRepo,
         EntityManagerInterface $em
     ): JsonResponse {
-        $this->denyIfNotChannelMember($channelId, $channelRepo);
+        $this->getChannelOrDeny($channelId, $channelRepo);
 
         $message = $em->getRepository(Message::class)->find($id);
         if (!$message || $message->getChannel()->getId() !== $channelId) {
@@ -132,7 +125,7 @@ final class MessageController extends AbstractController
         ChannelRepository $channelRepo,
         EntityManagerInterface $em
     ): JsonResponse {
-        $this->denyIfNotChannelMember($channelId, $channelRepo);
+        $this->getChannelOrDeny($channelId, $channelRepo);
 
         $page   = max(1, (int) $request->query->get('page', 1));
         $limit  = max(1, (int) $request->query->get('limit', 50));
@@ -163,7 +156,7 @@ final class MessageController extends AbstractController
         ChannelRepository $channelRepo,
         EntityManagerInterface $em
     ): JsonResponse {
-        $this->denyIfNotChannelMember($channelId, $channelRepo);
+        $this->getChannelOrDeny($channelId, $channelRepo);
 
         $message = $em->getRepository(Message::class)->find($id);
         if (!$message || $message->getChannel()->getId() !== $channelId) {

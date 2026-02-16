@@ -52,15 +52,24 @@ final class WorkspaceMemberController extends AbstractController
 
         $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $workspace);
 
+        $owner = $workspace->getOwner();
+        $ownerId = $owner ? $owner->getId() : null;
+
         $members = [];
-        foreach ($workspace->getMembers() as $member) {
+        foreach ($workspace->getMembers() as $m) {
+            /** @var \App\Entity\User $m */
+            $roles = method_exists($m, 'getRoles') ? $m->getRoles() : [];
+
             $members[] = [
-                'id' => $member->getId(),
-                'email' => $member->getEmail(),
+                'id' => $m->getId(),
+                'email' => $m->getEmail(),
+                'isOwner' => ($ownerId !== null && $m->getId() === $ownerId),
+                'isAdmin' => \in_array('ROLE_ADMIN', $roles, true) || ($ownerId !== null && $m->getId() === $ownerId),
             ];
         }
 
         return $this->json($members, 200);
+
     }
 
     /**

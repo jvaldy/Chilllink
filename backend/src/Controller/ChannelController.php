@@ -29,9 +29,10 @@ final class ChannelController extends AbstractController
             return $this->json(['error' => 'Workspace not found'], 404);
         }
 
-        
+        // ✅ membre workspace requis
         $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $workspace);
 
+        // ✅ channels verrouillés par défaut : on liste tout, mais l’accès sera verrouillé sur show/messages
         return $this->json(
             $workspace->getChannels(),
             200,
@@ -56,7 +57,7 @@ final class ChannelController extends AbstractController
             return $this->json(['error' => 'Workspace not found'], 404);
         }
 
-        
+        // ✅ owner uniquement
         $this->denyAccessUnlessGranted('WORKSPACE_OWNER', $workspace);
 
         $data = json_decode($request->getContent(), true);
@@ -68,8 +69,8 @@ final class ChannelController extends AbstractController
         $channel->setName($data['name']);
         $channel->setWorkspace($workspace);
 
-        
-        $channel->getMembers()->add($user);
+        // ✅ owner membre du channel (mais pas d’auto-sync avec les autres membres)
+        $channel->addMember($user);
 
         $em->persist($channel);
         $em->flush();
@@ -85,15 +86,12 @@ final class ChannelController extends AbstractController
         WorkspaceRepository $workspaceRepo,
         ChannelRepository $channelRepo
     ): JsonResponse {
-        /** @var User $user */
-        $user = $this->getUser();
-
         $workspace = $workspaceRepo->find($workspaceId);
         if (!$workspace) {
             return $this->json(['error' => 'Workspace not found'], 404);
         }
 
-       
+        // ✅ prérequis : membre workspace
         $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $workspace);
 
         $channel = $channelRepo->findOneInWorkspace($id, $workspaceId);
@@ -101,10 +99,8 @@ final class ChannelController extends AbstractController
             return $this->json(['error' => 'Channel not found'], 404);
         }
 
-        
-        if (!$channel->getMembers()->contains($user)) {
-            $this->denyAccessUnlessGranted('CHANNEL_VIEW', $channel);
-        }
+        // ✅ channel verrouillé : voter
+        $this->denyAccessUnlessGranted('CHANNEL_VIEW', $channel);
 
         return $this->json($channel, 200, [], ['groups' => 'channel:item']);
     }

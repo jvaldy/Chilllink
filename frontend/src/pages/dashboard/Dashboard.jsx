@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { authStore } from "../../features/auth/authStore";
 
 /* WORKSPACES */
@@ -15,10 +16,15 @@ import MessageList from "../../features/messages/MessageList";
 import MessageComposer from "../../features/messages/MessageComposer";
 import TypingIndicator from "../../features/messages/TypingIndicator";
 
+/* MEMBERS */
+import WorkspaceMembersModal from "../../features/workspaces/members/WorkspaceMembersModal";
+
 import "./Dashboard.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
+  const [membersOpen, setMembersOpen] = useState(false);
 
   /* WORKSPACES */
   const {
@@ -64,9 +70,7 @@ export default function Dashboard() {
           addWorkspace={addWorkspace}
         />
 
-        <button onClick={logout} className="workspace-logout">
-          Logout
-        </button>
+        
       </aside>
 
       {/* CHANNELS */}
@@ -82,14 +86,43 @@ export default function Dashboard() {
 
       {/* CHAT */}
       <main className="chat-container">
+        {/* ✅ HEADER (option 3) */}
+        <div className="chat-header">
+          <div className="chat-header-left">
+            <span className="chat-header-title">
+              {currentChannel ? `# ${currentChannel.name}` : "Chilllink"}
+            </span>
+          </div>
+
+          <div className="chat-header-actions">
+            {selectedWorkspaceId && (
+              <button
+                className="chat-header-btn"
+                onClick={() => setMembersOpen(true)}
+              >
+                👥 Membres
+              </button>
+            )}
+
+            <button onClick={logout} className="chat-logout-btn">
+              Logout
+            </button>
+          </div>
+        </div>
+
+
+        {/* CONTENU CHAT */}
         {currentChannel ? (
           <>
             {locked ? (
               <div className="empty-chat">
-                <div style={{ fontSize: 18, marginBottom: 8 }}>🔒 Channel verrouillé</div>
+                <div style={{ fontSize: 18, marginBottom: 8 }}>
+                  🔒 Channel verrouillé
+                </div>
                 <div style={{ opacity: 0.8 }}>
-                  Tu vois ce channel car tu es membre du workspace, mais tu n’as pas encore accès
-                  aux messages. Demande au owner de t’ajouter au channel.
+                  Tu vois ce channel car tu es membre du workspace, mais tu n’as
+                  pas encore accès aux messages. Demande au owner de t’ajouter au
+                  channel.
                 </div>
               </div>
             ) : (
@@ -107,6 +140,14 @@ export default function Dashboard() {
           </>
         ) : (
           <div className="empty-chat">Sélectionne un channel</div>
+        )}
+
+        {/* MODAL MEMBERS */}
+        {membersOpen && selectedWorkspaceId && (
+          <WorkspaceMembersModal
+            workspaceId={selectedWorkspaceId}
+            onClose={() => setMembersOpen(false)}
+          />
         )}
       </main>
     </div>
