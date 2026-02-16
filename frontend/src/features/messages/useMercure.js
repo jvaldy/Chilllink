@@ -1,27 +1,18 @@
-/**
- * useMercure.js
- * -------------
- * Hook pour souscrire à Mercure (messages + typing)
- * Version stable (anti-duplication / callback stable)
- */
-
 import { useEffect, useRef } from "react";
 
-export function useMercure(channelId, onEvent) {
+export function useMercure(channelId, enabled, onEvent) {
   const onEventRef = useRef(onEvent);
 
-  // Toujours garder la dernière version de callback sans relancer la subscription
   useEffect(() => {
     onEventRef.current = onEvent;
   }, [onEvent]);
 
   useEffect(() => {
-    if (!channelId) return;
+    if (!channelId || !enabled) return;
 
     const mercureUrl = import.meta.env.VITE_MERCURE_URL;
     const url = new URL(mercureUrl);
 
-    // ✅ 2 topics : messages + typing
     url.searchParams.append("topic", `channel/${channelId}`);
     url.searchParams.append("topic", `typing/channel/${channelId}`);
 
@@ -44,12 +35,9 @@ export function useMercure(channelId, onEvent) {
 
     eventSource.onerror = (err) => {
       console.error("Mercure error:", err);
-      // On ferme pour éviter boucle de reconnexion infinie si CORS / auth / offline
       eventSource.close();
     };
 
-    return () => {
-      eventSource.close();
-    };
-  }, [channelId]);
+    return () => eventSource.close();
+  }, [channelId, enabled]);
 }

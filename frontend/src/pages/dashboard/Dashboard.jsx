@@ -20,9 +20,7 @@ import "./Dashboard.css";
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  /* =======================
-     WORKSPACES
-  ======================= */
+  /* WORKSPACES */
   const {
     workspaces,
     selectedWorkspaceId,
@@ -30,9 +28,7 @@ export default function Dashboard() {
     addWorkspace,
   } = useWorkspaces();
 
-  /* =======================
-     CHANNELS
-  ======================= */
+  /* CHANNELS */
   const {
     channels,
     selectedChannelId,
@@ -40,20 +36,17 @@ export default function Dashboard() {
     addChannel,
   } = useChannels(selectedWorkspaceId);
 
-  /* =======================
-     MESSAGES
-  ======================= */
+  /* MESSAGES */
   const {
     messages,
     typingUsers,
     loading,
     error,
+    locked,
     sendMessage,
   } = useMessages(selectedChannelId);
 
-  const currentChannel = channels.find(
-    (c) => c.id === selectedChannelId
-  );
+  const currentChannel = channels.find((c) => c.id === selectedChannelId);
 
   const logout = () => {
     authStore.clear();
@@ -83,7 +76,7 @@ export default function Dashboard() {
           channels={channels}
           selectedChannelId={selectedChannelId}
           onSelect={setSelectedChannelId}
-          addChannel={addChannel}  
+          addChannel={addChannel}
         />
       </aside>
 
@@ -91,23 +84,29 @@ export default function Dashboard() {
       <main className="chat-container">
         {currentChannel ? (
           <>
-            <MessageList
-              messages={messages}
-              loading={loading}
-              error={error}
-            />
-
-            <TypingIndicator users={typingUsers} />
+            {locked ? (
+              <div className="empty-chat">
+                <div style={{ fontSize: 18, marginBottom: 8 }}>🔒 Channel verrouillé</div>
+                <div style={{ opacity: 0.8 }}>
+                  Tu vois ce channel car tu es membre du workspace, mais tu n’as pas encore accès
+                  aux messages. Demande au owner de t’ajouter au channel.
+                </div>
+              </div>
+            ) : (
+              <>
+                <MessageList messages={messages} loading={loading} error={error} />
+                <TypingIndicator users={typingUsers} />
+              </>
+            )}
 
             <MessageComposer
               onSend={sendMessage}
               channelId={selectedChannelId}
+              disabled={locked}
             />
           </>
         ) : (
-          <div className="empty-chat">
-            Sélectionne un channel
-          </div>
+          <div className="empty-chat">Sélectionne un channel</div>
         )}
       </main>
     </div>

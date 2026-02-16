@@ -103,7 +103,7 @@ final class ChannelController extends AbstractController
 
         
         if (!$channel->getMembers()->contains($user)) {
-            return $this->json(['error' => 'Forbidden'], 403);
+            $this->denyAccessUnlessGranted('CHANNEL_VIEW', $channel);
         }
 
         return $this->json($channel, 200, [], ['groups' => 'channel:item']);

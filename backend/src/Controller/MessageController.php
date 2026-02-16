@@ -5,8 +5,8 @@ namespace App\Controller;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Repository\ChannelRepository;
-use App\Service\MessageNormalizer;
 use App\Service\MessagePublisher;
+use App\Service\MessageNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,7 +23,7 @@ final class MessageController extends AbstractController
         private MessagePublisher $messagePublisher
     ) {}
 
-    private function assertCanAccessChannel(int $channelId, ChannelRepository $channelRepo): \App\Entity\Channel
+    private function denyIfNotChannelMember(int $channelId, ChannelRepository $channelRepo): \App\Entity\Channel
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -33,12 +33,10 @@ final class MessageController extends AbstractController
             throw $this->createNotFoundException('Channel not found');
         }
 
-        
-        if (!$channel->getWorkspace()->getMembers()->contains($user)) {
-            throw $this->createAccessDeniedException('Forbidden');
-        }
+        // 1) membre du workspace requis
+        $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $channel->getWorkspace());
 
-        
+        // 2) channel verrouillé => membre du channel requis
         if (!$channel->getMembers()->contains($user)) {
             throw $this->createAccessDeniedException('Forbidden');
         }
@@ -57,7 +55,7 @@ final class MessageController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $channel = $this->assertCanAccessChannel($channelId, $channelRepo);
+        $channel = $this->denyIfNotChannelMember($channelId, $channelRepo);
 
         $data = json_decode($request->getContent(), true);
         if (!isset($data['content']) || !is_string($data['content'])) {
@@ -77,6 +75,55 @@ final class MessageController extends AbstractController
         return $this->json(MessageNormalizer::normalize($message), 201);
     }
 
+    #[Route('/{id}', methods: ['PATCH'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function update(
+        int $channelId,
+        int $id,
+        Request $request,
+        ChannelRepository $channelRepo,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $this->denyIfNotChannelMember($channelId, $channelRepo);
+
+        $message = $em->getRepository(Message::class)->find($id);
+        if (!$message || $message->getChannel()->getId() !== $channelId) {
+            return $this->json(['error' => 'Message not found'], 404);
+        }
+
+        if ($message->getAuthor() !== $this->getUser()) {
+            return $this->json(['error' => 'Forbidden'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!isset($data['content']) || !is_string($data['content'])) {
+            return $this->json(['error' => 'Invalid content'], 400);
+        }
+
+        $message->setContent($data['content']);
+        $em->flush();
+
+        return $this->json(MessageNormalizer::normalize($message), 200);
+    }
+
+    #[Route('/{id}', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function show(
+        int $channelId,
+        int $id,
+        ChannelRepository $channelRepo,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $this->denyIfNotChannelMember($channelId, $channelRepo);
+
+        $message = $em->getRepository(Message::class)->find($id);
+        if (!$message || $message->getChannel()->getId() !== $channelId) {
+            return $this->json(['error' => 'Message not found'], 404);
+        }
+
+        return $this->json(MessageNormalizer::normalize($message), 200);
+    }
+
     #[Route('', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function list(
@@ -85,7 +132,7 @@ final class MessageController extends AbstractController
         ChannelRepository $channelRepo,
         EntityManagerInterface $em
     ): JsonResponse {
-        $this->assertCanAccessChannel($channelId, $channelRepo);
+        $this->denyIfNotChannelMember($channelId, $channelRepo);
 
         $page   = max(1, (int) $request->query->get('page', 1));
         $limit  = max(1, (int) $request->query->get('limit', 50));
@@ -108,55 +155,6 @@ final class MessageController extends AbstractController
         );
     }
 
-    #[Route('/{id}', methods: ['GET'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function show(
-        int $channelId,
-        int $id,
-        ChannelRepository $channelRepo,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        $this->assertCanAccessChannel($channelId, $channelRepo);
-
-        $message = $em->getRepository(Message::class)->find($id);
-        if (!$message || $message->getChannel()->getId() !== $channelId) {
-            return $this->json(['error' => 'Message not found'], 404);
-        }
-
-        return $this->json(MessageNormalizer::normalize($message), 200);
-    }
-
-    #[Route('/{id}', methods: ['PATCH'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function update(
-        int $channelId,
-        int $id,
-        Request $request,
-        ChannelRepository $channelRepo,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        $this->assertCanAccessChannel($channelId, $channelRepo);
-
-        $message = $em->getRepository(Message::class)->find($id);
-        if (!$message || $message->getChannel()->getId() !== $channelId) {
-            return $this->json(['error' => 'Message not found'], 404);
-        }
-
-        if ($message->getAuthor() !== $this->getUser()) {
-            return $this->json(['error' => 'Forbidden'], 403);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        if (!isset($data['content']) || !is_string($data['content'])) {
-            return $this->json(['error' => 'Invalid content'], 400);
-        }
-
-        $message->setContent($data['content']);
-        $em->flush();
-
-        return $this->json(MessageNormalizer::normalize($message), 200);
-    }
-
     #[Route('/{id}', methods: ['DELETE'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function delete(
@@ -165,7 +163,7 @@ final class MessageController extends AbstractController
         ChannelRepository $channelRepo,
         EntityManagerInterface $em
     ): JsonResponse {
-        $this->assertCanAccessChannel($channelId, $channelRepo);
+        $this->denyIfNotChannelMember($channelId, $channelRepo);
 
         $message = $em->getRepository(Message::class)->find($id);
         if (!$message || $message->getChannel()->getId() !== $channelId) {

@@ -1,33 +1,36 @@
 /**
  * httpClient.js
  * -------------
- * Client HTTP centralisé pour toute l’application.
- *
- * Responsabilités :
- * - Injecter automatiquement le token JWT
- * - Centraliser fetch + gestion d’erreurs
- * - Éviter la duplication de logique réseau
+ * Client HTTP centralisé.
+ * - JWT auto
+ * - erreurs standardisées (status/payload)
  */
 
-import { authStore } from '../../features/auth/authStore';
-import { API_BASE } from './endpoints';
+import { authStore } from "../../features/auth/authStore";
+import { API_BASE } from "./endpoints";
 
-export async function httpRequest(
-  method,
-  url,
-  { body = null, headers = {} } = {}
-) {
+export class ApiError extends Error {
+  constructor(message, { status, payload, url, method } = {}) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.payload = payload;
+    this.url = url;
+    this.method = method;
+  }
+}
+
+export async function httpRequest(method, url, { body = null, headers = {} } = {}) {
   const token = authStore.token;
 
   const config = {
     method,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...headers,
     },
   };
 
-  // Injection automatique du token JWT si présent
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -36,25 +39,43 @@ export async function httpRequest(
     config.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_BASE}${url}`, config);
+  const fullUrl = `${API_BASE}${url}`;
+  const response = await fetch(fullUrl, config);
 
-  // Tentative de lecture JSON (même en erreur)
+  // Try parse json (even on error)
   let data = null;
-  try {
-    data = await response.json();
-  } catch {
-    // réponse vide (204 par exemple)
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+  } else {
+    // fallback text (useful for Symfony debug/html)
+    try {
+      const text = await response.text();
+      data = text ? { raw: text } : null;
+    } catch {
+      data = null;
+    }
   }
 
-  // Gestion globale des erreurs HTTP
   if (!response.ok) {
-    // Token invalide ou expiré → logout global
     if (response.status === 401) {
       authStore.clear();
     }
 
-    const error = data?.error || 'Erreur API';
-    throw new Error(error);
+    const message =
+      (data && typeof data === "object" && (data.error || data.message)) ||
+      `HTTP ${response.status}`;
+
+    throw new ApiError(message, {
+      status: response.status,
+      payload: data,
+      url: fullUrl,
+      method,
+    });
   }
 
   return data;

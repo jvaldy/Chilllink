@@ -10,12 +10,10 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class ChannelVoter extends Voter
 {
     public const VIEW = 'CHANNEL_VIEW';
-    public const POST_MESSAGE = 'CHANNEL_POST_MESSAGE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $subject instanceof Channel
-            && in_array($attribute, [self::VIEW, self::POST_MESSAGE], true);
+        return $subject instanceof Channel && $attribute === self::VIEW;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -28,14 +26,11 @@ final class ChannelVoter extends Voter
         /** @var Channel $channel */
         $channel = $subject;
 
-        if (!$channel->getWorkspace()->isMember($user)) {
+        // ✅ condition "pro" : il faut être membre du workspace ET membre du channel
+        if (!$channel->getWorkspace()->getMembers()->contains($user)) {
             return false;
         }
 
-        return match ($attribute) {
-            self::VIEW => $channel->isMember($user),
-            self::POST_MESSAGE => $channel->isMember($user),
-            default => false,
-        };
+        return $channel->getMembers()->contains($user);
     }
 }

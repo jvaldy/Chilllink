@@ -4,16 +4,22 @@ import { useMercure } from "./useMercure";
 
 /**
  * Hook métier Messages + Typing (Mercure)
- * Export nommé : useMessages
+ * - channel verrouillé => locked=true + pas de Mercure + pas de send
  */
 export function useMessages(channelId) {
   const [messages, setMessages] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [locked, setLocked] = useState(false);
 
-  // Gestion propre des timeouts typing par userId
   const typingTimeoutsRef = useRef(new Map());
+
+  const resetTyping = () => {
+    setTypingUsers([]);
+    typingTimeoutsRef.current.forEach((t) => clearTimeout(t));
+    typingTimeoutsRef.current.clear();
+  };
 
   /* =======================
      FETCH MESSAGES (REST)
@@ -21,20 +27,35 @@ export function useMessages(channelId) {
   useEffect(() => {
     if (!channelId) {
       setMessages([]);
-      setTypingUsers([]);
-
-      typingTimeoutsRef.current.forEach((t) => clearTimeout(t));
-      typingTimeoutsRef.current.clear();
-
+      setError(null);
+      setLocked(false);
+      resetTyping();
       return;
     }
 
     setLoading(true);
     setError(null);
+    setLocked(false);
 
     fetchMessages(channelId)
-      .then((data) => setMessages(data))
-      .catch((err) => setError(err.message))
+      .then((data) => {
+        setMessages(data);
+        setLocked(false);
+      })
+      .catch((err) => {
+        // httpClient doit te renvoyer un error avec status
+        const status = err?.status;
+
+        if (status === 403) {
+          setLocked(true);
+          setMessages([]); // optionnel: on garde vide
+          setError(null);  // optionnel: on ne montre pas d’erreur brute
+          resetTyping();
+          return;
+        }
+
+        setError(err?.message || "Failed to load messages");
+      })
       .finally(() => setLoading(false));
   }, [channelId]);
 
@@ -59,7 +80,6 @@ export function useMessages(channelId) {
       return [...prev, data];
     });
 
-    // reset timeout pour ce user
     const existing = typingTimeoutsRef.current.get(data.userId);
     if (existing) clearTimeout(existing);
 
@@ -72,20 +92,18 @@ export function useMessages(channelId) {
   }, []);
 
   /* =======================
-     MERCURE SUBSCRIPTION
+     MERCURE (only if unlocked)
   ======================= */
-  useMercure(channelId, (event) => {
+  useMercure(channelId, !locked, (event) => {
     if (!event || !event.type) return;
 
     switch (event.type) {
       case "message":
         addMessage(event.payload);
         break;
-
       case "typing":
         handleTypingEvent(event.payload);
         break;
-
       default:
         console.warn("Unknown Mercure event type:", event.type);
     }
@@ -95,11 +113,15 @@ export function useMessages(channelId) {
      SEND MESSAGE
   ======================= */
   const sendMessage = async (content) => {
+    if (locked) {
+      return { success: false, error: "LOCKED_CHANNEL" };
+    }
+
     try {
       await postMessage(channelId, content);
       return { success: true };
     } catch (err) {
-      return { success: false, error: err.message };
+      return { success: false, error: err?.message || "Send failed" };
     }
   };
 
@@ -108,6 +130,7 @@ export function useMessages(channelId) {
     typingUsers,
     loading,
     error,
+    locked,
     sendMessage,
   };
 }
