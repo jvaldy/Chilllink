@@ -20,6 +20,8 @@ final class ChannelMemberController extends AbstractController
 {
     /**
      * LISTE DES MEMBRES D’UN CHANNEL
+     * - prérequis : être membre du workspace
+     * - et avoir accès au channel (CHANNEL_VIEW) OU être owner workspace
      */
     #[Route('', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -51,12 +53,13 @@ final class ChannelMemberController extends AbstractController
             $channel->getMembers(),
             200,
             [],
-            ['groups' => 'channel:item'] 
+            ['groups' => 'channel:item'] // tes Users sont déjà dans workspace:item/channel:item via Groups(User.email)
         );
     }
 
     /**
      * AJOUTER UN MEMBRE DANS UN CHANNEL (owner workspace uniquement)
+     * Body recommandé : { "email": "user@test.com" }
      */
     #[Route('', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -74,6 +77,7 @@ final class ChannelMemberController extends AbstractController
             return $this->json(['error' => 'Workspace not found'], 404);
         }
 
+        // owner only
         $this->denyAccessUnlessGranted('WORKSPACE_OWNER', $workspace);
 
         $channel = $channelRepo->findOneInWorkspace($channelId, $workspaceId);
@@ -93,6 +97,7 @@ final class ChannelMemberController extends AbstractController
             return $this->json(['error' => 'User not found'], 404);
         }
 
+        // doit déjà être membre workspace
         if (!$workspace->getMembers()->contains($userToAdd)) {
             return $this->json(['error' => 'User is not a workspace member'], 400);
         }
@@ -130,6 +135,7 @@ final class ChannelMemberController extends AbstractController
             return $this->json(['error' => 'Workspace not found'], 404);
         }
 
+        // owner only
         $this->denyAccessUnlessGranted('WORKSPACE_OWNER', $workspace);
 
         $channel = $channelRepo->findOneInWorkspace($channelId, $workspaceId);
@@ -142,6 +148,9 @@ final class ChannelMemberController extends AbstractController
         if (!$userToRemove) {
             return $this->json(['error' => 'User not found'], 404);
         }
+
+        // sécurité UX : on évite de retirer l’owner du channel si tu veux garder owner toujours membre
+        // (optionnel) : ici je laisse possible. Si tu veux interdire, dis-moi.
 
         if (!$channel->isMember($userToRemove)) {
             return $this->json(['status' => 'not_member'], 200);

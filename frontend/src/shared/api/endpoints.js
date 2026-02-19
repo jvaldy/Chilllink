@@ -25,7 +25,14 @@ export const endpoints = {
 
   channels: {
     messages: (channelId) => `/channels/${channelId}/messages`,
-    typing: (channelId) => `/channels/${channelId}/typing`, 
+    typing: (channelId) => `/channels/${channelId}/typing`,
+
+    members: (workspaceId, channelId) =>
+      `/workspaces/${workspaceId}/channels/${channelId}/members`,
+
+    memberItem: (workspaceId, channelId, userId) =>
+      `/workspaces/${workspaceId}/channels/${channelId}/members/${userId}`,
   },
+
 
 };

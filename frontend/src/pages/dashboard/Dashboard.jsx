@@ -18,13 +18,16 @@ import TypingIndicator from "../../features/messages/TypingIndicator";
 
 /* MEMBERS */
 import WorkspaceMembersModal from "../../features/workspaces/members/WorkspaceMembersModal";
+import ChannelMembersModal from "../../features/channels/ChannelMembersModal"; 
 
 import "./Dashboard.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const [membersOpen, setMembersOpen] = useState(false);
+  // ✅ États séparés
+  const [workspaceMembersOpen, setWorkspaceMembersOpen] = useState(false);
+  const [channelMembersOpen, setChannelMembersOpen] = useState(false);
 
   /* WORKSPACES */
   const {
@@ -52,7 +55,9 @@ export default function Dashboard() {
     sendMessage,
   } = useMessages(selectedChannelId);
 
-  const currentChannel = channels.find((c) => c.id === selectedChannelId);
+  const currentChannel = channels.find(
+    (c) => c.id === selectedChannelId
+  );
 
   const logout = () => {
     authStore.clear();
@@ -61,7 +66,8 @@ export default function Dashboard() {
 
   return (
     <div className="chat-app">
-      {/* WORKSPACES */}
+
+      {/* ================= WORKSPACES ================= */}
       <aside className="workspace-bar">
         <WorkspaceList
           workspaces={workspaces}
@@ -69,11 +75,9 @@ export default function Dashboard() {
           onSelect={setSelectedWorkspaceId}
           addWorkspace={addWorkspace}
         />
-
-        
       </aside>
 
-      {/* CHANNELS */}
+      {/* ================= CHANNELS ================= */}
       <aside className="channel-container">
         <ChannelList
           disabled={!selectedWorkspaceId}
@@ -84,9 +88,10 @@ export default function Dashboard() {
         />
       </aside>
 
-      {/* CHAT */}
+      {/* ================= CHAT ================= */}
       <main className="chat-container">
-        {/* ✅ HEADER (option 3) */}
+
+        {/* ================= HEADER ================= */}
         <div className="chat-header">
           <div className="chat-header-left">
             <span className="chat-header-title">
@@ -95,23 +100,38 @@ export default function Dashboard() {
           </div>
 
           <div className="chat-header-actions">
+
+            {/* 👥 Membres du Workspace */}
             {selectedWorkspaceId && (
               <button
                 className="chat-header-btn"
-                onClick={() => setMembersOpen(true)}
+                onClick={() => setWorkspaceMembersOpen(true)}
               >
-                👥 Membres
+                👥 Workspace
               </button>
             )}
 
-            <button onClick={logout} className="chat-logout-btn">
+            {/* 🔒 Membres du Channel */}
+            {selectedWorkspaceId && selectedChannelId && (
+              <button
+                className="chat-header-btn"
+                onClick={() => setChannelMembersOpen(true)}
+              >
+                🔒 Channel
+              </button>
+            )}
+
+            <button
+              onClick={logout}
+              className="chat-logout-btn"
+            >
               Logout
             </button>
+
           </div>
         </div>
 
-
-        {/* CONTENU CHAT */}
+        {/* ================= CONTENU CHAT ================= */}
         {currentChannel ? (
           <>
             {locked ? (
@@ -120,14 +140,18 @@ export default function Dashboard() {
                   🔒 Channel verrouillé
                 </div>
                 <div style={{ opacity: 0.8 }}>
-                  Tu vois ce channel car tu es membre du workspace, mais tu n’as
-                  pas encore accès aux messages. Demande au owner de t’ajouter au
-                  channel.
+                  Tu vois ce channel car tu es membre du workspace,
+                  mais tu n’as pas encore accès aux messages.
+                  Demande au owner de t’ajouter au channel.
                 </div>
               </div>
             ) : (
               <>
-                <MessageList messages={messages} loading={loading} error={error} />
+                <MessageList
+                  messages={messages}
+                  loading={loading}
+                  error={error}
+                />
                 <TypingIndicator users={typingUsers} />
               </>
             )}
@@ -139,16 +163,32 @@ export default function Dashboard() {
             />
           </>
         ) : (
-          <div className="empty-chat">Sélectionne un channel</div>
+          <div className="empty-chat">
+            Sélectionne un channel
+          </div>
         )}
 
-        {/* MODAL MEMBERS */}
-        {membersOpen && selectedWorkspaceId && (
+        {/* ================= MODALS ================= */}
+
+        {/* Workspace Members */}
+        {workspaceMembersOpen && selectedWorkspaceId && (
           <WorkspaceMembersModal
             workspaceId={selectedWorkspaceId}
-            onClose={() => setMembersOpen(false)}
+            onClose={() => setWorkspaceMembersOpen(false)}
           />
         )}
+
+        {/* Channel Members */}
+        {channelMembersOpen &&
+          selectedWorkspaceId &&
+          selectedChannelId && (
+            <ChannelMembersModal
+              workspaceId={selectedWorkspaceId}
+              channelId={selectedChannelId}
+              onClose={() => setChannelMembersOpen(false)}
+            />
+          )}
+
       </main>
     </div>
   );

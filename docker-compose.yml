@@ -72,7 +72,7 @@ services:
         cors_credentials true
         anonymous
     ports:
-      - "3000:3000"
+      - "8085:3000"
     networks:
       - chilllink-net
 
