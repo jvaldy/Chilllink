@@ -34,5 +34,9 @@ export const endpoints = {
       `/workspaces/${workspaceId}/channels/${channelId}/members/${userId}`,
   },
 
+  profile: {
+    item: "/profile",
+  },
+
 
 };
