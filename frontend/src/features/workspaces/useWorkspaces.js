@@ -55,6 +55,6 @@ export function useWorkspaces() {
     setSelectedWorkspaceId,
     loading,
     error,
-    addWorkspace, // ✅ indispensable pour WorkspaceList
+    addWorkspace, 
   };
 }

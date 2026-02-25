@@ -1,11 +1,6 @@
-/**
- * ChannelList.jsx
- * ----------------
- * Liste des channels + création via modal
- */
-
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./Channel.css";
+import CreateChannelModal from "./CreateChannelModal";
 
 export default function ChannelList({
   channels,
@@ -13,76 +8,113 @@ export default function ChannelList({
   onSelect,
   addChannel,
   disabled = false,
+  onOpenWorkspaceMembers,
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const menuRef = useRef(null);
 
-  const handleCreate = async () => {
-    if (!name.trim()) return;
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!menuRef.current) return;
+      if (!menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
 
-    setLoading(true);
-    try {
-      await addChannel(name.trim());
-      setName("");
-      setIsOpen(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   return (
     <>
-      {/* LISTE DES CHANNELS */}
-      {channels.map((channel) => (
-        <button
-          key={channel.id}
-          className={`channel-item ${
-            channel.id === selectedChannelId ? "active" : ""
-          }`}
-          onClick={() => onSelect(channel.id)}
-          title={channel.name}
-        >
-          # {channel.name}
-        </button>
-      ))}
+      <div className="channel-topbar">
+        <div className="channel-topbar-title">CHANNELS</div>
 
-      {/* BOUTON AJOUT */}
-      {!disabled && (
-        <button
-          className="channel-item add"
-          onClick={() => setIsOpen(true)}
-          title="Créer un channel"
-        >
-          + Ajouter un channel
-        </button>
-      )}
+        <div className="channel-menu" ref={menuRef}>
+          <button
+            type="button"
+            className="channel-menu-btn"
+            disabled={disabled}
+            onClick={() => setMenuOpen((value) => !value)}
+          >
+            ☰ Menu ▾
+          </button>
 
-      {/* MODAL CRÉATION */}
-      {isOpen && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <h3>Créer un channel</h3>
-
-            <input
-              type="text"
-              placeholder="Nom du channel"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-            />
-
-            <div className="modal-actions">
-              <button onClick={() => setIsOpen(false)}>Annuler</button>
+          {menuOpen && !disabled && (
+            <div className="channel-menu-dropdown">
               <button
-                onClick={handleCreate}
-                disabled={loading || !name.trim()}
+                type="button"
+                className="channel-menu-item"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setIsCreateOpen(true);
+                }}
               >
-                {loading ? "Création…" : "Créer"}
+                ➕ Channel
+              </button>
+
+              <button
+                type="button"
+                className="channel-menu-item"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onOpenWorkspaceMembers?.();
+                }}
+              >
+                👥 Workspace
               </button>
             </div>
-          </div>
+          )}
         </div>
+      </div>
+
+      <div className="channel-list">
+        {channels.map((channel) => {
+          const isLocked =
+            channel.locked === true ||
+            channel.isMember === false;
+
+          const isActive = channel.id === selectedChannelId;
+
+          return (
+            <button
+              key={channel.id}
+              type="button"
+              className={`channel-item ${
+                isActive ? "active" : ""
+              } ${isLocked ? "locked" : ""}`}
+              onClick={() => onSelect(channel.id)}
+              title={isLocked ? "Accès restreint" : channel.name}
+            >
+              <div className="channel-left">
+                <span className="channel-hash">
+                  {isLocked ? "🔒" : "#"}
+                </span>
+
+                <span className="channel-name">
+                  {channel.name}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {isCreateOpen && !disabled && (
+        <CreateChannelModal
+          onCreate={addChannel}
+          onClose={() => setIsCreateOpen(false)}
+        />
       )}
     </>
   );

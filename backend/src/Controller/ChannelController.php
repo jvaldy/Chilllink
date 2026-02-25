@@ -24,21 +24,28 @@ final class ChannelController extends AbstractController
         int $workspaceId,
         WorkspaceRepository $workspaceRepo
     ): JsonResponse {
+        /** @var User $user */
+        $user = $this->getUser();
+
         $workspace = $workspaceRepo->find($workspaceId);
         if (!$workspace) {
             return $this->json(['error' => 'Workspace not found'], 404);
         }
 
-        // ✅ membre workspace requis
         $this->denyAccessUnlessGranted('WORKSPACE_VIEW', $workspace);
 
-        // ✅ channels verrouillés par défaut : on liste tout, mais l’accès sera verrouillé sur show/messages
-        return $this->json(
-            $workspace->getChannels(),
-            200,
-            [],
-            ['groups' => 'channel:list']
-        );
+        $channels = $workspace->getChannels();
+
+        $payload = [];
+        foreach ($channels as $channel) {
+            $payload[] = [
+                'id' => $channel->getId(),
+                'name' => $channel->getName(),
+                'isMember' => $channel->isMember($user),
+            ];
+        }
+
+        return $this->json($payload, 200);
     }
 
     #[Route('', methods: ['POST'])]

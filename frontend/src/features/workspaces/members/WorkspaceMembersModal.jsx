@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { authStore } from "../../auth/authStore";
 import { useWorkspaceMembers } from "./useWorkspaceMembers";
+import "../Workspace.css";
 
 export default function WorkspaceMembersModal({ workspaceId, onClose }) {
   const [email, setEmail] = useState("");
@@ -11,17 +12,17 @@ export default function WorkspaceMembersModal({ workspaceId, onClose }) {
   const currentUserId = authStore.user?.id ?? null;
 
   const sortedMembers = useMemo(() => {
-    return [...members].sort((a, b) =>
-      (a.email || "").localeCompare(b.email || "")
+    return [...members].sort((memberA, memberB) =>
+      (memberA.email || "").localeCompare(memberB.email || "")
     );
   }, [members]);
 
-  const submitInvite = async (e) => {
-    e.preventDefault();
+  const submitInvite = async (event) => {
+    event.preventDefault();
     if (!email.trim()) return;
 
-    const res = await inviteByEmail(email.trim());
-    if (res.success) setEmail("");
+    const response = await inviteByEmail(email.trim());
+    if (response.success) setEmail("");
   };
 
   const handleRemove = async (userId) => {
@@ -30,74 +31,92 @@ export default function WorkspaceMembersModal({ workspaceId, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
-        <h3>Membres du workspace</h3>
-
-        {loading && <div style={{ marginBottom: 8 }}>Chargement…</div>}
-
-        {error && (
-          <div style={{ marginBottom: 8, opacity: 0.85 }}>
-            Erreur : {error}
+    <div className="cl-modal-backdrop" onMouseDown={onClose}>
+      <div className="cl-modal" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="cl-modal-header">
+          <div className="cl-modal-title-wrap">
+            <h3 className="cl-modal-title">Membres du workspace  </h3>
+            <div className="cl-modal-subtitle">
+              Inviter / gérer les membres du workspace
+            </div>
           </div>
-        )}
 
-        <form onSubmit={submitInvite} style={{ marginBottom: 12 }}>
-          <input
-            type="email"
-            placeholder="Inviter par email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={submitting}
-            autoFocus
-          />
+          <button type="button" className="cl-modal-close" onClick={onClose} aria-label="Fermer">
+            ✕
+          </button>
+        </div>
 
-          <div className="modal-actions">
-            <button type="button" onClick={onClose}>
-              Fermer
-            </button>
+        {error && <div className="cl-modal-alert">Erreur : {error}</div>}
+        {loading && <div className="cl-modal-muted">Chargement…</div>}
 
-            <button type="submit" disabled={submitting || !email.trim()}>
+        <form className="cl-invite" onSubmit={submitInvite}>
+          <label className="cl-label">Inviter</label>
+
+          <div className="cl-row">
+            <input
+              className="cl-input"
+              type="email"
+              placeholder="email@exemple.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              disabled={submitting}
+              autoFocus
+            />
+
+            <button
+              className="cl-btn cl-btn-primary"
+              type="submit"
+              disabled={submitting || !email.trim()}
+            >
               {submitting ? "Envoi…" : "Inviter"}
             </button>
           </div>
+
+          <div className="cl-hint">
+            Le membre aura accès au workspace, mais pas forcément aux channels.
+          </div>
         </form>
 
-        <div style={{ maxHeight: 320, overflow: "auto" }}>
-          {sortedMembers.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "8px 0",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600 }}>{m.email}</div>
-                <div style={{ fontSize: 12, opacity: 0.7 }}>id: {m.id}</div>
-              </div>
+        <div className="cl-members">
+          <div className="cl-members-head">
+            <span className="cl-members-title">Liste</span>
+            <span className="cl-members-count">{sortedMembers.length}</span>
+          </div>
 
-              <button
-                type="button"
-                onClick={() => handleRemove(m.id)}
-                disabled={submitting || m.id === currentUserId}
-                title={
-                  m.id === currentUserId
-                    ? "Tu ne peux pas te retirer toi-même"
-                    : "Retirer"
-                }
-              >
-                Retirer
-              </button>
-            </div>
-          ))}
+          <div className="cl-members-list">
+            {sortedMembers.map((member) => {
+              const isSelf = member.id === currentUserId;
+
+              return (
+                <div key={member.id} className="cl-member">
+                  <div className="cl-member-left">
+                    <div className="cl-member-avatar">
+                      {(member.email?.trim()?.[0] || "?").toUpperCase()}
+                    </div>
+
+                    <div className="cl-member-meta">
+                      <div className="cl-member-email">{member.email}</div>
+                      <div className="cl-member-id">id: {member.id}</div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="cl-btn cl-btn-danger"
+                    onClick={() => handleRemove(member.id)}
+                    disabled={submitting || isSelf}
+                    title={isSelf ? "Tu ne peux pas te retirer toi-même" : "Retirer"}
+                  >
+                    Retirer
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="modal-actions" style={{ marginTop: 12 }}>
-          <button type="button" onClick={onClose}>
+        <div className="cl-modal-footer">
+          <button type="button" className="cl-btn cl-btn-ghost" onClick={onClose}>
             Fermer
           </button>
         </div>

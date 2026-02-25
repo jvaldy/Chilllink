@@ -318,3 +318,161 @@
   background: #404249;
   color: #fff;
 }
+
+.account-menu {
+  position: relative;
+}
+
+.account-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  background: #1e1f22;
+  border: 1px solid #2a2b2f;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  z-index: 50;
+}
+
+.account-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #dcddde;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.account-item:hover {
+  background: #35373c;
+}
+
+.account-item.danger {
+  color: #ff6b6b;
+}
+
+.account-item.danger:hover {
+  background: rgba(255, 107, 107, 0.12);
+}
+
+
+
+
+
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.global-header {
+  height: 40px;
+  background-color: #1a1b1e;
+  border-bottom: 1px solid #111214;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.global-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.logo-icon {
+  font-size: 14px;
+}
+
+.logo-text {
+  opacity: 0.85;
+}
+
+.chat-app {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+
+.logo-img {
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+}
+
+
+
+
+
+.global-header {
+  height: 48px;
+  background-color: #1a1b1e;
+  border-bottom: 1px solid #111214;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.global-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.global-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.global-btn {
+  background: #313338;
+  border: 1px solid #2a2b2f;
+  color: #dcddde;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.global-btn:hover {
+  background: #3a3c43;
+}
+
+.global-btn.primary {
+  background: #5865f2;
+  border: none;
+  color: white;
+}
+
+.global-btn.primary:hover {
+  background: #4752c4;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
