@@ -9,7 +9,12 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { fetchWorkspaces, createWorkspace } from "./workspaceService";
+import {
+  fetchWorkspaces,
+  createWorkspace,
+  deleteWorkspace,
+  updateWorkspace,
+} from "./workspaceService";
 
 export function useWorkspaces() {
   const [workspaces, setWorkspaces] = useState([]);
@@ -25,6 +30,34 @@ export function useWorkspaces() {
     setSelectedWorkspaceId(workspace.id);
 
     return workspace;
+  }, []);
+
+  const removeWorkspace = useCallback(async (workspaceId) => {
+    await deleteWorkspace(workspaceId);
+
+    setWorkspaces((prev) => {
+      const updated = prev.filter((w) => w.id !== workspaceId);
+
+      if (updated.length > 0) {
+        setSelectedWorkspaceId(updated[0].id);
+      } else {
+        setSelectedWorkspaceId(null);
+      }
+
+      return updated;
+    });
+  }, []);
+
+  const renameWorkspace = useCallback(async (workspaceId, name) => {
+    const updated = await updateWorkspace(workspaceId, name);
+
+    setWorkspaces((prev) =>
+      prev.map((w) =>
+        w.id === workspaceId ? updated : w
+      )
+    );
+
+    return updated;
   }, []);
 
   useEffect(() => {
@@ -56,5 +89,7 @@ export function useWorkspaces() {
     loading,
     error,
     addWorkspace, 
+    removeWorkspace,
+    renameWorkspace,
   };
 }

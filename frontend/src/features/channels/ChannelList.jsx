@@ -9,6 +9,8 @@ export default function ChannelList({
   addChannel,
   disabled = false,
   onOpenWorkspaceMembers,
+  onOpenRemoveWorkspace,
+  onOpenRenameWorkspace,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -68,10 +70,32 @@ export default function ChannelList({
                 className="channel-menu-item"
                 onClick={() => {
                   setMenuOpen(false);
+                  onOpenRenameWorkspace?.();
+                }}
+              >
+                ✏️ Workspace
+              </button>
+
+              <button
+                type="button"
+                className="channel-menu-item"
+                onClick={() => {
+                  setMenuOpen(false);
                   onOpenWorkspaceMembers?.();
                 }}
               >
                 👥 Workspace
+              </button>
+
+              <button
+                type="button"
+                className="channel-menu-item danger"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onOpenRemoveWorkspace?.();
+                }}
+              >
+                 🗑️ Workspace
               </button>
             </div>
           )}
@@ -100,7 +124,6 @@ export default function ChannelList({
                 <span className="channel-hash">
                   {isLocked ? "🔒" : "#"}
                 </span>
-
                 <span className="channel-name">
                   {channel.name}
                 </span>

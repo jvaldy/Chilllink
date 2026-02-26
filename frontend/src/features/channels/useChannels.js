@@ -14,6 +14,8 @@ import { useEffect, useState, useCallback } from "react";
 import {
   fetchChannelsByWorkspace,
   createChannel,
+  updateChannel,
+  deleteChannel,
 } from "./channelService";
 
 export function useChannels(workspaceId) {
@@ -40,6 +42,51 @@ export function useChannels(workspaceId) {
     },
     [workspaceId]
   );
+
+
+  const renameChannel = useCallback(
+    async (channelId, name) => {
+      if (!workspaceId || !name?.trim()) return;
+
+      const updated = await updateChannel(
+        workspaceId,
+        channelId,
+        name.trim()
+      );
+
+      setChannels((prev) =>
+        prev.map((c) =>
+          c.id === channelId ? updated : c
+        )
+      );
+
+      return updated;
+    },
+    [workspaceId]
+  );
+
+
+
+  const removeChannel = useCallback(
+    async (channelId) => {
+      if (!workspaceId) return;
+
+      await deleteChannel(workspaceId, channelId);
+
+      setChannels((prev) =>
+        prev.filter((c) => c.id !== channelId)
+      );
+
+      setSelectedChannelId((prevSelected) =>
+        prevSelected === channelId
+          ? null
+          : prevSelected
+      );
+    },
+    [workspaceId]
+  );
+
+
 
   /* =======================
      FETCH CHANNELS
@@ -84,8 +131,10 @@ export function useChannels(workspaceId) {
     channels,
     selectedChannelId,
     setSelectedChannelId,
-    addChannel,        // 🔥 exposé correctement
+    addChannel,        
     loading,
     error,
+    renameChannel,
+    removeChannel,
   };
 }

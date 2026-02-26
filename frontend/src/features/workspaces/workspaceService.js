@@ -27,3 +27,21 @@ export function createWorkspace(name) {
     body: { name },
   });
 }
+
+
+export function deleteWorkspace(workspaceId) {
+  return httpRequest(
+    "DELETE",
+    `${endpoints.workspaces.list}/${workspaceId}`
+  );
+}
+
+export function updateWorkspace(workspaceId, name) {
+  return httpRequest(
+    "PATCH",
+    `${endpoints.workspaces.list}/${workspaceId}`,
+    {
+      body: { name },
+    }
+  );
+}

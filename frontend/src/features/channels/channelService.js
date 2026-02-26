@@ -27,3 +27,22 @@ export function createChannel(workspaceId, name) {
     }
   );
 }
+
+
+export function updateChannel(workspaceId, channelId, name) {
+  return httpRequest(
+    "PATCH",
+    `${endpoints.workspaces.channels(workspaceId)}/${channelId}`,
+    {
+      body: { name },
+    }
+  );
+}
+
+
+export function deleteChannel(workspaceId, channelId) {
+  return httpRequest(
+    "DELETE",
+    `${endpoints.workspaces.channels(workspaceId)}/${channelId}`
+  );
+}

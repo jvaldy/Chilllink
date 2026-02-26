@@ -4,16 +4,21 @@ import "./Channel.css";
 
 export default function ChannelMembersModal({
   workspaceId,
-  channelId,
+  channel,
+  renameChannel,
+  removeChannel,
   onClose,
 }) {
-  const { members, loading, add, remove } = useChannelMembers(
-    workspaceId,
-    channelId
-  );
+  const channelId = channel.id;
+
+  const { members, loading, add, remove } =
+    useChannelMembers(workspaceId, channelId);
 
   const [email, setEmail] = useState("");
+  const [newName, setNewName] = useState(channel.name);
   const [submitting, setSubmitting] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) =>
@@ -21,8 +26,26 @@ export default function ChannelMembersModal({
     );
   }, [members]);
 
-  const handleAdd = async (event) => {
-    event.preventDefault();
+  /* =========================
+     RENAME
+  ========================= */
+  const handleRename = async (e) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+
+    setRenaming(true);
+    try {
+      await renameChannel(channelId, newName.trim());
+    } finally {
+      setRenaming(false);
+    }
+  };
+
+  /* =========================
+     ADD MEMBER
+  ========================= */
+  const handleAdd = async (e) => {
+    e.preventDefault();
     if (!email.trim()) return;
 
     setSubmitting(true);
@@ -34,21 +57,42 @@ export default function ChannelMembersModal({
     }
   };
 
+  /* =========================
+     REMOVE MEMBER
+  ========================= */
   const handleRemove = async (userId) => {
     await remove(userId);
+  };
+
+  /* =========================
+     DELETE CHANNEL
+  ========================= */
+  const handleDelete = async () => {
+    if (!window.confirm("Supprimer définitivement ce channel ?"))
+      return;
+
+    setDeleting(true);
+    try {
+      await removeChannel(channelId);
+      onClose();
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
     <div className="cl-modal-backdrop" onMouseDown={onClose}>
       <div
         className="cl-modal"
-        onMouseDown={(event) => event.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="cl-modal-header">
           <div>
-            <h3 className="cl-modal-title">Membres du channel</h3>
+            <h3 className="cl-modal-title">
+              🔒 Channel : {channel.name}
+            </h3>
             <div className="cl-modal-subtitle">
-              Gérer l’accès à ce channel
+              Gérer l’accès et les paramètres
             </div>
           </div>
 
@@ -56,19 +100,38 @@ export default function ChannelMembersModal({
             type="button"
             className="cl-modal-close"
             onClick={onClose}
-            aria-label="Fermer"
           >
             ✕
           </button>
         </div>
 
-        {loading && (
-          <div className="cl-modal-muted" style={{ marginLeft: 16 }}>
-            Chargement…
-          </div>
-        )}
+        {/* RENAME */}
+        <form onSubmit={handleRename} className="cl-invite">
+          <label className="cl-label">Renommer</label>
 
-        {/* INVITE BLOCK */}
+          <div className="cl-row">
+            <input
+              className="cl-input"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              disabled={renaming}
+            />
+
+            <button
+              type="submit"
+              className="cl-btn cl-btn-primary"
+              disabled={
+                !newName.trim() ||
+                newName.trim() === channel.name ||
+                renaming
+              }
+            >
+              {renaming ? "Modification…" : "Renommer"}
+            </button>
+          </div>
+        </form>
+
+        {/* ADD MEMBER */}
         <form onSubmit={handleAdd} className="cl-invite">
           <label className="cl-label">Ajouter un membre</label>
 
@@ -77,12 +140,8 @@ export default function ChannelMembersModal({
               className="cl-input"
               placeholder="email@exemple.com"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={submitting}
-              autoFocus
-              onKeyDown={(event) => {
-                if (event.key === "Escape") onClose();
-              }}
             />
 
             <button
@@ -93,13 +152,15 @@ export default function ChannelMembersModal({
               {submitting ? "Ajout…" : "Ajouter"}
             </button>
           </div>
-
-          <div className="cl-hint">
-            Seuls les membres ajoutés verront les messages.
-          </div>
         </form>
 
         {/* MEMBERS LIST */}
+        {loading && (
+          <div className="cl-modal-muted" style={{ marginLeft: 16 }}>
+            Chargement…
+          </div>
+        )}
+
         <div className="cl-members">
           <div className="cl-members-head">
             <span className="cl-members-title">Liste</span>
@@ -113,7 +174,7 @@ export default function ChannelMembersModal({
               <div key={member.id} className="cl-member">
                 <div className="cl-member-left">
                   <div className="cl-member-avatar">
-                    {(member.email?.trim()?.[0] || "?").toUpperCase()}
+                    {(member.email?.[0] || "?").toUpperCase()}
                   </div>
 
                   <div className="cl-member-meta">
@@ -136,6 +197,22 @@ export default function ChannelMembersModal({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* DELETE */}
+        <div className="cl-modal-alert">
+          ⚠ Supprimer ce channel est irréversible.
+        </div>
+
+        <div className="cl-form">
+          <button
+            type="button"
+            className="cl-btn cl-btn-danger"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? "Suppression…" : "🗑 Supprimer le channel"}
+          </button>
         </div>
 
         <div className="cl-modal-footer">

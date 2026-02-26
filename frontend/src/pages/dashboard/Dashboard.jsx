@@ -4,6 +4,8 @@ import { authStore } from "../../features/auth/authStore";
 
 import { useWorkspaces } from "../../features/workspaces/useWorkspaces";
 import WorkspaceList from "../../features/workspaces/WorkspaceList";
+import RemoveWorkspaceModal from "../../features/workspaces/RemoveWorkspaceModal";
+import RenameWorkspaceModal from "../../features/workspaces/RenameWorkspaceModal";
 
 import { useChannels } from "../../features/channels/useChannels";
 import ChannelList from "../../features/channels/ChannelList";
@@ -25,6 +27,8 @@ export default function Dashboard() {
   const [workspaceMembersOpen, setWorkspaceMembersOpen] = useState(false);
   const [channelMembersOpen, setChannelMembersOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [removeWorkspaceOpen, setRemoveWorkspaceOpen] = useState(false);
+  const [renameWorkspaceOpen, setRenameWorkspaceOpen] = useState(false);
 
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef(null);
@@ -34,13 +38,21 @@ export default function Dashboard() {
     selectedWorkspaceId,
     setSelectedWorkspaceId,
     addWorkspace,
+    removeWorkspace,
+    renameWorkspace,
   } = useWorkspaces();
+
+  const currentWorkspace = workspaces.find(
+    (w) => w.id === selectedWorkspaceId
+  );
 
   const {
     channels,
     selectedChannelId,
     setSelectedChannelId,
     addChannel,
+    renameChannel,
+    removeChannel,
   } = useChannels(selectedWorkspaceId);
 
   const {
@@ -52,7 +64,9 @@ export default function Dashboard() {
     sendMessage,
   } = useMessages(selectedChannelId);
 
-  const currentChannel = channels.find((c) => c.id === selectedChannelId);
+  const currentChannel = channels.find(
+    (c) => c.id === selectedChannelId
+  );
 
   const logout = () => {
     authStore.clear();
@@ -81,18 +95,20 @@ export default function Dashboard() {
   return (
     <div className="app-wrapper">
 
+      {/* HEADER */}
       <div className="global-header">
         <div className="global-left">
           <div className="global-logo">
-            <img src="/logo_chilllink.png" alt="Chilllink Logo" className="logo-img" />
+            <img
+              src="/logo_chilllink.png"
+              alt="Chilllink Logo"
+              className="logo-img"
+            />
             <span className="logo-text">Chilllink</span>
           </div>
         </div>
 
         <div className="global-right">
-
-          
-
           <div className="account-menu" ref={accountRef}>
             <button
               className="global-btn"
@@ -128,7 +144,9 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* APP */}
       <div className="chat-app">
+
         <aside className="workspace-bar">
           <WorkspaceList
             workspaces={workspaces}
@@ -146,60 +164,41 @@ export default function Dashboard() {
             onSelect={setSelectedChannelId}
             addChannel={addChannel}
             onOpenWorkspaceMembers={() => setWorkspaceMembersOpen(true)}
+            onOpenRemoveWorkspace={() => setRemoveWorkspaceOpen(true)}
+            onOpenRenameWorkspace={() => setRenameWorkspaceOpen(true)}
           />
         </aside>
 
-
-
-
-
-
         <main className="chat-container">
           <div className="chat-header">
-            <div className="chat-header-left">
-              <span className="chat-header-title">
-                {currentChannel ? `# ${currentChannel.name}` : "Chilllink"}
-              </span>
-            </div>
+            <span className="chat-header-title">
+              {currentChannel ? `# ${currentChannel.name}` : "Chilllink"}
+            </span>
 
-            <div className="chat-header-actions">
-              
-              {selectedWorkspaceId && selectedChannelId && (
-                <button
-                  className="chat-header-btn"
-                  onClick={() => setChannelMembersOpen(true)}
-                >
-                  🔒 Channel
-                </button>
-              )}
-
-             
-            </div>
+            {selectedWorkspaceId && selectedChannelId && (
+              <button
+                className="chat-header-btn"
+                onClick={() => setChannelMembersOpen(true)}
+              >
+                🔒 Channel
+              </button>
+            )}
           </div>
 
           {currentChannel ? (
             <>
               {locked ? (
                 <div className="empty-chat">
-                  <div style={{ fontSize: 18, marginBottom: 8 }}>
-                    🔒 Channel verrouillé
-                  </div>
-                  <div style={{ opacity: 0.8 }}>
-                    Tu vois ce channel car tu es membre du workspace, mais tu n’as pas
-                    encore accès aux messages. Demande au owner de t’ajouter au channel.
-                  </div>
+                  🔒 Channel verrouillé
                 </div>
               ) : (
                 <>
-                  
                   <MessageList
                     messages={messages}
                     loading={loading}
                     error={error}
                     currentUserEmail={authStore.user?.email || ""}
                   />
-
-
                   <TypingIndicator users={typingUsers} />
                 </>
               )}
@@ -211,32 +210,52 @@ export default function Dashboard() {
               />
             </>
           ) : (
-            <div className="empty-chat">Sélectionne un channel</div>
+            <div className="empty-chat">
+              Sélectionne un channel
+            </div>
           )}
-
-          {workspaceMembersOpen && selectedWorkspaceId && (
-            <WorkspaceMembersModal
-              workspaceId={selectedWorkspaceId}
-              onClose={() => setWorkspaceMembersOpen(false)}
-            />
-          )}
-
-          {channelMembersOpen && selectedWorkspaceId && selectedChannelId && (
-            <ChannelMembersModal
-              workspaceId={selectedWorkspaceId}
-              channelId={selectedChannelId}
-              onClose={() => setChannelMembersOpen(false)}
-            />
-          )}
-
-          {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
         </main>
-
-
-
-
-
       </div>
+
+      {/* MODALS */}
+
+      {channelMembersOpen && selectedWorkspaceId && currentChannel && (
+        <ChannelMembersModal
+          workspaceId={selectedWorkspaceId}
+          channel={currentChannel}
+          renameChannel={renameChannel}
+          removeChannel={removeChannel}
+          onClose={() => setChannelMembersOpen(false)}
+        />
+      )}
+
+      {workspaceMembersOpen && selectedWorkspaceId && (
+        <WorkspaceMembersModal
+          workspaceId={selectedWorkspaceId}
+          onClose={() => setWorkspaceMembersOpen(false)}
+        />
+      )}
+
+      {removeWorkspaceOpen && currentWorkspace && (
+        <RemoveWorkspaceModal
+          workspace={currentWorkspace}
+          onConfirm={removeWorkspace}
+          onClose={() => setRemoveWorkspaceOpen(false)}
+        />
+      )}
+
+      {renameWorkspaceOpen && currentWorkspace && (
+        <RenameWorkspaceModal
+          workspace={currentWorkspace}
+          onRename={renameWorkspace}
+          onClose={() => setRenameWorkspaceOpen(false)}
+        />
+      )}
+
+      {profileOpen && (
+        <ProfileModal onClose={() => setProfileOpen(false)} />
+      )}
+
     </div>
   );
 }
