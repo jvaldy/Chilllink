@@ -56,11 +56,8 @@ export default function App() {
    * lorsque le composant App est démonté (bonne pratique React).
    */
   useEffect(() => {
-    const unsubscribe = authStore.subscribe((token) => {
-      // !!token convertit en booléen :
-      // - token vide => false
-      // - token présent => true
-      setIsLogged(!!token);
+    const unsubscribe = authStore.subscribe((state) => {
+      setIsLogged(!!state.token);
     });
 
     return unsubscribe;

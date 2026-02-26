@@ -172,8 +172,8 @@ export default function Dashboard() {
         <main className="chat-container">
           <div className="chat-header">
             <span className="chat-header-title">
-              {currentChannel ? `# ${currentChannel.name}` : "Chilllink"}
-            </span>
+            {currentWorkspace ? currentWorkspace.name : "Chilllink"}
+          </span>
 
             {selectedWorkspaceId && selectedChannelId && (
               <button
@@ -255,6 +255,13 @@ export default function Dashboard() {
       {profileOpen && (
         <ProfileModal onClose={() => setProfileOpen(false)} />
       )}
+
+      {/* FOOTER */}
+      <footer className="global-footer">
+        <div className="footer-content">
+          © {new Date().getFullYear()} Chilllink. Tous droits réservés.
+        </div>
+      </footer>
 
     </div>
   );
