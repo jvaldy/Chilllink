@@ -40,4 +40,4 @@ Elle se compose de trois microservices conteneurisés :
     - Base de données (Adminer) : http://localhost:8081
         Utilisateur : user_chl_w3Z9k4 / Mot de passe : pass_9qA@1eN!b7
     - API backend : http://localhost:8080
-    - Frontend : http://localhost:5173
+    - Frontend : http://localhost:5174

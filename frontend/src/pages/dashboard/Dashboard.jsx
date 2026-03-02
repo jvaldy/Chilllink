@@ -136,7 +136,7 @@ export default function Dashboard() {
                     logout();
                   }}
                 >
-                  🚪 Logout
+                  🚪 Déconnexion
                 </button>
               </div>
             )}
