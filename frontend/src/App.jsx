@@ -29,6 +29,8 @@ import ProtectedRoute from "./shared/components/ProtectedRoute";
 
 // Store global d’authentification (token JWT, état connecté/déconnecté)
 import { authStore } from "./features/auth/authStore";
+import { endpoints } from "./shared/api/endpoints";
+import { httpRequest } from "./shared/api/httpClient";
 
 // Design system global (variables CSS, couleurs, boutons, inputs, etc.)
 import "./shared/styles/theme.css";
@@ -61,6 +63,25 @@ export default function App() {
     });
 
     return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const checkTokenValidity = async () => {
+      if (!authStore.isAuthenticated()) return;
+
+      try {
+        await httpRequest("GET", endpoints.auth.me);
+      } catch {
+        // 401 is already handled in httpClient (authStore.clear()).
+      }
+    };
+
+    checkTokenValidity();
+    const intervalId = window.setInterval(checkTokenValidity, 30000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   return (
