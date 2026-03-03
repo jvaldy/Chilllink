@@ -31,7 +31,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * - Contrôleur "invokable" (__invoke)
  *   → une seule action, un seul endpoint, lisibilité maximale
  */
-#[OA\Tag(name: 'Utilisateur')]
+#[OA\Tag(name: 'Users')]
 #[OA\Get(
     path: '/api/me',
     summary: 'Retourne l’utilisateur connecté',

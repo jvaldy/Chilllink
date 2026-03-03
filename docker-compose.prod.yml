@@ -1,0 +1,14 @@
+services:
+  api:
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: "0"
+    volumes: !override []
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports: !override
+      - "5174:80"
+    volumes: !override []

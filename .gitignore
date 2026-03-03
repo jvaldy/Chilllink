@@ -39,3 +39,6 @@ Thumbs.db
 /.phpunit.result.cache
 /.eslintcache
 
+# Root Docker Compose environment file (contains local secrets)
+/.env
+

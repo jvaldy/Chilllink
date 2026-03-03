@@ -63,7 +63,7 @@ final class AuthController extends AbstractController
      * - Endpoint volontairement non protégé (pas de JWT requis)
      * - Les validations empêchent les incohérences et doublons
      */
-    #[OA\Tag(name: 'Authentification')]
+    #[OA\Tag(name: 'Authentication')]
     #[OA\Post(
         path: '/api/register',
         summary: 'Inscription d’un nouvel utilisateur',

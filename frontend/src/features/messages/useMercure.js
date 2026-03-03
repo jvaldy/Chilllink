@@ -10,7 +10,9 @@ export function useMercure(channelId, enabled, onEvent) {
   useEffect(() => {
     if (!channelId || !enabled) return;
 
-    const mercureUrl = import.meta.env.VITE_MERCURE_URL;
+    const mercureUrl =
+      import.meta.env.VITE_MERCURE_URL ||
+      "http://localhost:8085/.well-known/mercure";
     const url = new URL(mercureUrl);
 
     url.searchParams.append("topic", `channel/${channelId}`);

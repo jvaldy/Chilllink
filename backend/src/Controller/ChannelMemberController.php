@@ -25,6 +25,22 @@ final class ChannelMemberController extends AbstractController
      */
     #[Route('', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Get(
+        path: '/api/workspaces/{workspaceId}/channels/{channelId}/members',
+        summary: 'Lister les membres d un channel',
+        description: 'Retourne les membres du channel. Requiert un acces au workspace et au channel.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'workspaceId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 11)),
+            new OA\Parameter(name: 'channelId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 2)),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Liste des membres'),
+            new OA\Response(response: 401, description: 'Authentification requise'),
+            new OA\Response(response: 403, description: 'Acces refuse'),
+            new OA\Response(response: 404, description: 'Workspace ou channel introuvable'),
+        ]
+    )]
     public function list(
         int $workspaceId,
         int $channelId,
@@ -63,6 +79,32 @@ final class ChannelMemberController extends AbstractController
      */
     #[Route('', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Post(
+        path: '/api/workspaces/{workspaceId}/channels/{channelId}/members',
+        summary: 'Ajouter un membre a un channel',
+        description: 'Ajoute un membre au channel via son email. Seul le owner du workspace est autorise.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'workspaceId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 11)),
+            new OA\Parameter(name: 'channelId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 2)),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'user@example.com'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Membre ajoute ou deja present'),
+            new OA\Response(response: 400, description: 'Payload invalide ou utilisateur hors workspace'),
+            new OA\Response(response: 401, description: 'Authentification requise'),
+            new OA\Response(response: 403, description: 'Acces refuse'),
+            new OA\Response(response: 404, description: 'Workspace, channel ou utilisateur introuvable'),
+        ]
+    )]
     public function add(
         int $workspaceId,
         int $channelId,
@@ -122,6 +164,24 @@ final class ChannelMemberController extends AbstractController
      */
     #[Route('/{userId}', methods: ['DELETE'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[OA\Delete(
+        path: '/api/workspaces/{workspaceId}/channels/{channelId}/members/{userId}',
+        summary: 'Retirer un membre d un channel',
+        description: 'Retire un membre du channel. Seul le owner du workspace est autorise.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'workspaceId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 11)),
+            new OA\Parameter(name: 'channelId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 2)),
+            new OA\Parameter(name: 'userId', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 7)),
+        ],
+        responses: [
+            new OA\Response(response: 204, description: 'Membre retire'),
+            new OA\Response(response: 200, description: 'Utilisateur deja absent du channel'),
+            new OA\Response(response: 401, description: 'Authentification requise'),
+            new OA\Response(response: 403, description: 'Acces refuse'),
+            new OA\Response(response: 404, description: 'Workspace, channel ou utilisateur introuvable'),
+        ]
+    )]
     public function remove(
         int $workspaceId,
         int $channelId,

@@ -2,8 +2,8 @@ nelmio_api_doc:
     documentation:
         info:
             title: Chilllink API
-            description: Documentation OpenAPI de l’API Chilllink (Symfony 6.4 + JWT).
-            version: 1.0.0
+            description: Official OpenAPI documentation for Chilllink API (Symfony 6.4 + JWT).
+            version: 1.1.0
         components:
             securitySchemes:
                 bearerAuth:
@@ -12,13 +12,13 @@ nelmio_api_doc:
                     bearerFormat: JWT
         security:
             - bearerAuth: []
-
         paths:
             /api/login_check:
                 post:
-                    tags: [Authentification]
-                    summary: Authentification utilisateur (login)
-                    security: []   # public
+                    tags: [Authentication]
+                    summary: Authenticate a user and return a JWT token
+                    description: Public endpoint used by the frontend to retrieve a bearer token.
+                    security: []
                     requestBody:
                         required: true
                         content:
@@ -34,22 +34,21 @@ nelmio_api_doc:
                                         password:
                                             type: string
                                             format: password
-                                            example: "password123"
-                responses:
-                    '200':
-                        description: Connexion réussie => retourne token JWT
-                        content:
-                            application/json:
-                                schema:
-                                    type: object
-                                    properties:
-                                        token:
-                                            type: string
-                                            example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-                    '401':
-                        description: Identifiants invalides
+                                            example: password123
+                    responses:
+                        '200':
+                            description: Authentication successful
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            token:
+                                                type: string
+                                                example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+                        '401':
+                            description: Invalid credentials
 
     areas:
         path_patterns:
             - ^/api(?!/doc$|/doc\.json$)
-
