@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Open dashboard
+    Frontend->>API: GET /api/workspaces
+    API->>API: Validate JWT
+    API->>DB: Load user workspaces
+    DB-->>API: Workspace list
+    API-->>Frontend: 200 OK + workspaces
+    Frontend-->>User: Display workspace list

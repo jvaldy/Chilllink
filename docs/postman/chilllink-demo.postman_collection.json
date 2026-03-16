@@ -1,0 +1,380 @@
+{
+  "info": {
+    "_postman_id": "0a4f7d54-b148-4dc3-bfe2-8d35d59f9f9b",
+    "name": "Chilllink Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demo scenario for presentation: JWT authentication, workspace ownership, channel access control, and business rule enforcement."
+  },
+  "item": [
+    {
+      "name": "1. Register owner",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{$randomUUID}}-owner@demo.test\",\n  \"password\": \"DemoPass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = JSON.parse(pm.request.body.raw);",
+              "pm.environment.set('ownerEmail', body.email);",
+              "pm.environment.set('defaultPassword', body.password);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Register member",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{$randomUUID}}-member@demo.test\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = JSON.parse(pm.request.body.raw);",
+              "pm.environment.set('memberEmail', body.email);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Register outsider",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{$randomUUID}}-outsider@demo.test\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const body = JSON.parse(pm.request.body.raw);",
+              "pm.environment.set('outsiderEmail', body.email);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Login owner",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{ownerEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/login_check",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "login_check"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('ownerToken', json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Login member",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{memberEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/login_check",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "login_check"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('memberToken', json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Login outsider",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{outsiderEmail}}\",\n  \"password\": \"{{defaultPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/login_check",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "login_check"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('outsiderToken', json.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Owner creates workspace",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Demo Workspace\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('workspaceId', json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Owner adds member to workspace",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{memberEmail}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/members",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "members"]
+        }
+      }
+    },
+    {
+      "name": "9. Owner creates channel",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"presentation-room\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/channels",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "channels"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.environment.set('channelId', json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Member lists channels before being added",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/channels",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "channels"]
+        }
+      }
+    },
+    {
+      "name": "11. Member tries to open restricted channel",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/channels/{{channelId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "channels", "{{channelId}}"]
+        }
+      }
+    },
+    {
+      "name": "12. Owner tries to add outsider to channel",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{outsiderEmail}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/channels/{{channelId}}/members",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "channels", "{{channelId}}", "members"]
+        }
+      }
+    },
+    {
+      "name": "13. Owner adds member to channel",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{memberEmail}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/channels/{{channelId}}/members",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "channels", "{{channelId}}", "members"]
+        }
+      }
+    },
+    {
+      "name": "14. Member opens channel after being added",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/channels/{{channelId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "workspaces", "{{workspaceId}}", "channels", "{{channelId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8888" },
+    { "key": "defaultPassword", "value": "DemoPass123!" }
+  ]
+}

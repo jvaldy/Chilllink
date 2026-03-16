@@ -1,0 +1,16 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+    participant Mercure
+
+    User->>Frontend: Edit a message
+    Frontend->>API: PATCH /api/channels/{channelId}/messages/{id}
+    API->>API: Validate JWT and author permissions
+    API->>DB: Load and update message
+    DB-->>API: Message updated
+    API->>Mercure: Publish message update
+    Mercure-->>Frontend: Updated message event
+    API-->>Frontend: 200 OK + updated message
+    Frontend-->>User: Refresh edited message

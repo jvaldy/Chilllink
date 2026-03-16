@@ -1,0 +1,15 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Submit workspace creation form
+    Frontend->>API: POST /api/workspaces { name }
+    API->>API: Validate JWT and payload
+    API->>DB: Insert workspace
+    API->>DB: Set owner
+    API->>DB: Add creator as workspace member
+    DB-->>API: Workspace persisted
+    API-->>Frontend: 201 Created + workspace payload
+    Frontend-->>User: Refresh workspace list and select new workspace

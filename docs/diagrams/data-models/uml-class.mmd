@@ -1,0 +1,68 @@
+﻿classDiagram
+direction LR
+
+class User {
+  +int id
+  +string email
+  +json roles
+  +string password
+  +datetime_immutable createdAt
+  +datetime_immutable updatedAt
+}
+
+class UserProfile {
+  +int id
+  +int user_id
+  +string firstName
+  +string lastName
+  +date birthDate
+  +string phoneNumber
+  +string city
+  +string country
+  +text bio
+  +datetime_immutable createdAt
+  +datetime_immutable updatedAt
+}
+
+class Workspace {
+  +int id
+  +string name
+  +int owner_id
+  +datetime_immutable createdAt
+}
+
+class Channel {
+  +int id
+  +string name
+  +int workspace_id
+  +datetime_immutable createdAt
+}
+
+class Message {
+  +int id
+  +text content
+  +int author_id
+  +int channel_id
+  +datetime_immutable createdAt
+}
+
+class WorkspaceUser {
+  +int workspace_id
+  +int user_id
+}
+
+class ChannelUser {
+  +int channel_id
+  +int user_id
+}
+
+User "1" --> "0..1" UserProfile : profile
+User "1" --> "0..*" Workspace : owns
+Workspace "1" --> "0..*" Channel : contains
+Channel "1" --> "0..*" Message : stores
+User "1" --> "0..*" Message : authors
+
+Workspace "1" --> "0..*" WorkspaceUser
+User "1" --> "0..*" WorkspaceUser
+Channel "1" --> "0..*" ChannelUser
+User "1" --> "0..*" ChannelUser

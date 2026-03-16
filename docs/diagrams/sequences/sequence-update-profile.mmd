@@ -1,0 +1,32 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Open profile modal
+    Frontend->>API: GET /api/profile
+    API->>API: Validate JWT
+    API->>DB: Load UserProfile
+
+    alt Profile exists
+        DB-->>API: Existing profile
+        API-->>Frontend: 200 OK + profile data
+    else No profile yet
+        DB-->>API: No profile
+        API-->>Frontend: 204 No Content
+    end
+
+    User->>Frontend: Submit profile changes
+    Frontend->>API: PATCH /api/profile
+    API->>API: Validate JWT and payload
+
+    alt No existing profile
+        API->>DB: Create UserProfile
+    else Existing profile
+        API->>DB: Update UserProfile
+    end
+
+    DB-->>API: Profile saved
+    API-->>Frontend: 200 OK + updated profile
+    Frontend-->>User: Show success feedback

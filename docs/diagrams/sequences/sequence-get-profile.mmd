@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Open profile modal
+    Frontend->>API: GET /api/profile
+    API->>API: Validate JWT
+    API->>DB: Load user profile
+    DB-->>API: Profile data
+    API-->>Frontend: 200 OK + profile
+    Frontend-->>User: Display profile form

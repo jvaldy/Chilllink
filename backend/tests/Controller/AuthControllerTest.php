@@ -2,10 +2,11 @@
 
 namespace App\Tests\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 // Tests d'inscription utilisateur (endpoint public /api/register).
-class AuthControllerTest extends WebTestCase
+class AuthControllerTest extends ApiWebTestCase
 {
     // Cas nominal: un utilisateur peut s'inscrire avec email + mot de passe.
     public function testRegisterSuccess(): void
@@ -48,6 +49,22 @@ class AuthControllerTest extends WebTestCase
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([]));
         $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testLoginAcceptsLegacyUsernameField(): void
+    {
+        $client = static::createClient();
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $this->createUser($em, $this->uniqueEmail('legacy_login'));
+
+        $client->request('POST', '/api/login_check', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode([
+            'username' => $user->getEmail(),
+            'password' => 'wrong-password',
+        ]));
+
+        $this->assertResponseStatusCodeSame(401);
     }
 }
 

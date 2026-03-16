@@ -1,0 +1,27 @@
+Architecture - Chilllink (text version)
+
+Layers
+1) Client
+- Web browser
+- React application (Vite in dev, static build in prod-like)
+
+2) Docker exposure
+- Frontend: port 5174
+  - Dev: Vite server
+  - Prod-like: Nginx serving /dist
+- API Symfony: port 8888
+- Mercure Hub: port 8085
+- Adminer: port 8082
+
+3) Internal Docker network (chilllink-net)
+- api service (Symfony 6.4)
+- db service (PostgreSQL 16)
+- mercure service (SSE)
+- adminer service
+
+Flows
+- Frontend -> API (HTTP/JSON + JWT)
+- API -> PostgreSQL (Doctrine ORM)
+- API -> Mercure (real-time publishing)
+- Frontend -> Mercure (subscription SSE)
+- Adminer -> PostgreSQL (administration)

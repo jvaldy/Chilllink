@@ -1,0 +1,19 @@
+EER - Chilllink (text version)
+
+Entities
+- user(id PK, email UK, roles, password, created_at, updated_at)
+- user_profile(id PK, user_id FK UK, first_name, last_name, birth_date, phone_number, city, country, bio, created_at, updated_at)
+- workspace(id PK, owner_id FK, name, created_at)
+- channel(id PK, workspace_id FK, name, created_at)
+- message(id PK, author_id FK, channel_id FK, content, created_at)
+- workspace_user(workspace_id PK/FK, user_id PK/FK)
+- channel_user(channel_id PK/FK, user_id PK/FK)
+
+Cardinalities
+- user (1) -- (0..1) user_profile
+- user (1) -- (0..*) workspace [owner]
+- workspace (1) -- (0..*) channel
+- channel (1) -- (0..*) message
+- user (1) -- (0..*) message [author]
+- user (0..*) -- (0..*) workspace via workspace_user
+- user (0..*) -- (0..*) channel via channel_user

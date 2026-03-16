@@ -1,0 +1,23 @@
+sequenceDiagram
+    actor Visitor
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Visitor->>Frontend: Fill registration form
+    Frontend->>API: POST /api/register
+    API->>API: Validate payload
+    API->>DB: Check email uniqueness
+
+    alt Email available
+        DB-->>API: Email not used
+        API->>API: Hash password
+        API->>DB: Insert user
+        DB-->>API: User created
+        API-->>Frontend: 201 Created
+        Frontend-->>Visitor: Show registration success
+    else Email already used
+        DB-->>API: Existing user found
+        API-->>Frontend: 409 Conflict
+        Frontend-->>Visitor: Display error message
+    end

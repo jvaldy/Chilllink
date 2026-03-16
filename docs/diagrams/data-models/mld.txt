@@ -1,0 +1,23 @@
+MLD - Chilllink (logical data model)
+
+Relations
+- USER(PK id, UK email, roles, password, created_at, updated_at)
+- USER_PROFILE(PK id, FK UK user_id, first_name, last_name, birth_date, phone_number, city, country, bio, created_at, updated_at)
+- WORKSPACE(PK id, FK owner_id, name, created_at)
+- CHANNEL(PK id, FK workspace_id, name, created_at)
+- MESSAGE(PK id, FK author_id, FK channel_id, content, created_at)
+- WORKSPACE_USER(PK FK workspace_id, PK FK user_id)
+- CHANNEL_USER(PK FK channel_id, PK FK user_id)
+
+Cardinalities
+- USER (0,1) <-> USER_PROFILE (1,1) via HAS
+- USER (0,n) <-> WORKSPACE (1,1) via OWNS
+- WORKSPACE (0,n) <-> CHANNEL (1,1) via CONTAINS
+- USER (0,n) <-> MESSAGE (1,1) via WRITES
+- CHANNEL (0,n) <-> MESSAGE (1,1) via STORES
+- USER (0,n) <-> WORKSPACE_USER (1,1) and WORKSPACE (0,n) <-> WORKSPACE_USER (1,1)
+- USER (0,n) <-> CHANNEL_USER (1,1) and CHANNEL (0,n) <-> CHANNEL_USER (1,1)
+
+Note
+- This MLD keeps PK, FK, UK, join tables, and cardinalities.
+- SQL types and engine-specific details remain in the MPD.

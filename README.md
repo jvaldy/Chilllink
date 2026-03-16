@@ -1,4 +1,4 @@
-# Chilllink
+﻿# Chilllink
 
 Chilllink est une application de collaboration en temps reel:
 - authentification JWT
@@ -12,7 +12,35 @@ Chilllink est une application de collaboration en temps reel:
 - Base de donnees: PostgreSQL 16
 - Temps reel: Mercure
 - Conteneurisation: Docker Compose
-- Tests: PHPUnit (backend), Vitest (frontend)
+- Tests: PHPUnit (backend), Vitest + Cypress (frontend)
+
+## Automatisation CI/CD
+Le workflow GitHub Actions est defini dans:
+- `.github/workflows/ci.yml`
+
+A chaque push / pull request:
+- Frontend:
+  - `npm ci`
+  - `npm run lint`
+  - `npm run test`
+  - `npm run build`
+  - publication de l'artefact `frontend-dist`
+- Backend:
+  - `composer validate --strict`
+  - `composer install`
+  - verification syntaxe PHP (`php -l`)
+  - `vendor/bin/phpunit`
+  - verification d'installation production (`composer install --no-dev`)
+  - publication du rapport `backend-phpunit-report`
+- Docker:
+  - build image API
+  - build image frontend dev
+  - build image frontend prod (Nginx)
+
+Objectif:
+- automatiser les controles qualite
+- verifier les tests et les builds avant livraison
+- preparer le deploiement avec des images Docker deja construites en CI
 
 ## Arborescence
 - `backend/`: API Symfony, entites, controleurs, services, tests
@@ -21,6 +49,17 @@ Chilllink est une application de collaboration en temps reel:
 - `docker-compose.yml`: orchestration locale
 - `docker-compose.prod.yml`: profil "prod-like" local (plus rapide)
 
+## Diagrammes de conception
+- UML classes: `docs/diagrams/data-models/uml-class.mmd`
+- EER: `docs/diagrams/data-models/eer.mmd`
+- MCD (Merise): `docs/diagrams/data-models/mcd.mmd`
+- MPD (PostgreSQL): `docs/diagrams/data-models/mpd.sql`
+- Architecture technique: `docs/diagrams/architecture/architecture.mmd`
+- Diagrammes fonctionnels: `docs/diagrams/functional/`
+- Diagrammes de sequence: `docs/diagrams/sequences/`
+- Planning: `docs/diagrams/planning/planning.mmd`
+- Mind map projet: `docs/diagrams/mindmaps/project-mindmap.mmd`
+- Versions texte (ouverture facile): `docs/diagrams/*/*.txt`
 ## Prerequis
 - Docker Desktop (ou Docker Engine + Docker Compose plugin)
 - Git
@@ -122,6 +161,16 @@ docker compose exec frontend npm run test
 ```bash
 docker compose exec frontend npm run test:coverage
 ```
+- E2E Cypress (recommande en local, avec front + back demarres):
+```bash
+cd frontend
+npm run e2e:open
+```
+- E2E headless:
+```bash
+cd frontend
+npm run e2e
+```
 
 ## Execution hors Docker (optionnel)
 
@@ -139,9 +188,28 @@ npm install
 npm run dev
 ```
 
+### E2E Cypress
+Avec l'API sur `http://localhost:8888` et le front sur `http://localhost:5174`:
+```bash
+cd frontend
+npm run e2e:open
+```
+Premier scenario ajoute:
+- `cypress/e2e/auth-dashboard.cy.js`
+- parcours valide: inscription de preparation via API, login via UI, acces au dashboard
+
 ## API et authentification
 - Endpoint public d inscription: `POST /api/register`
 - Endpoint public de login JWT: `POST /api/login_check`
+- Format du body pour le login JWT:
+```json
+{
+  "email": "user@email.com",
+  "password": "password123"
+}
+```
+- Le champ `email` est le format recommande sur `/api/login_check`.
+- Le champ legacy `username` est aussi accepte s il contient l email utilisateur.
 - Les autres routes API sont securisees par bearer token.
 - Documentation OpenAPI via Nelmio:
   - `/api/doc`
@@ -164,7 +232,5 @@ En production, on sert generalement le contenu de `dist/` avec Nginx/Caddy/Apach
   - verifier `db` et relancer les migrations.
 
 ## Notes de securite
-- Les secrets/credentials presents ici sont pour l environnement local de dev.
-- Ne pas reutiliser ces valeurs en preprod/prod.
-- Le secret Mercure ne doit plus etre ecrit en dur: il est lu depuis la variable `MERCURE_JWT_SECRET`.
 - Les variables sensibles DB / APP / JWT sont aussi lues depuis le `.env` racine Docker Compose.
+

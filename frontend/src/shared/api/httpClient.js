@@ -1,9 +1,7 @@
 /**
- * httpClient.js
- * -------------
- * Client HTTP centralisé.
- * - JWT auto
- * - erreurs standardisées (status/payload)
+ * Client HTTP centralise.
+ * - Ajoute le JWT si present
+ * - Normalise les erreurs
  */
 
 import { authStore } from "../../features/auth/authStore";
@@ -21,8 +19,10 @@ export class ApiError extends Error {
 }
 
 export async function httpRequest(method, url, { body = null, headers = {} } = {}) {
+  // Token JWT courant (si connecte)
   const token = authStore.token;
 
+  // Configuration de base de la requete
   const config = {
     method,
     headers: {
@@ -31,18 +31,21 @@ export async function httpRequest(method, url, { body = null, headers = {} } = {
     },
   };
 
+  // Ajout de l'entete Authorization si token present
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  // Serialization du body JSON si besoin
   if (body) {
     config.body = JSON.stringify(body);
   }
 
+  // URL finale de l'API
   const fullUrl = `${API_BASE}${url}`;
   const response = await fetch(fullUrl, config);
 
-  // Try parse json (even on error)
+  // Tente de parser du JSON meme en cas d'erreur
   let data = null;
   const contentType = response.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
@@ -52,7 +55,7 @@ export async function httpRequest(method, url, { body = null, headers = {} } = {
       data = null;
     }
   } else {
-    // fallback text (useful for Symfony debug/html)
+    // Fallback texte (utile pour erreurs Symfony/HTML)
     try {
       const text = await response.text();
       data = text ? { raw: text } : null;
@@ -62,14 +65,17 @@ export async function httpRequest(method, url, { body = null, headers = {} } = {
   }
 
   if (!response.ok) {
+    // 401 => on invalide la session locale
     if (response.status === 401) {
       authStore.clear();
     }
 
+    // Message d'erreur prioritaire
     const message =
       (data && typeof data === "object" && (data.error || data.message)) ||
       `HTTP ${response.status}`;
 
+    // Erreur normalisee pour le front
     throw new ApiError(message, {
       status: response.status,
       payload: data,

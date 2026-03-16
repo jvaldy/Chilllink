@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant Mercure as Mercure Hub
+    participant Subscriber as Other client
+
+    User->>Frontend: Type in message composer
+    Frontend->>API: POST /api/channels/{id}/typing
+    API->>API: Validate JWT and channel access
+    API->>Mercure: Publish typing event
+    Mercure-->>Subscriber: SSE typing update
+    Subscriber->>Subscriber: Show typing indicator

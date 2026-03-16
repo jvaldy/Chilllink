@@ -1,0 +1,45 @@
+flowchart LR
+  classDef relation fill:#0b0f19,stroke:#94a3b8,stroke-width:1.5px,color:#e5e7eb;
+  classDef assoc fill:#1f2937,stroke:#f59e0b,stroke-width:1.5px,color:#f8fafc;
+
+  USER["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>USER</b></td></tr><tr><td>id</td><td>PK</td></tr><tr><td>email</td><td>UK</td></tr><tr><td>roles</td><td></td></tr><tr><td>password</td><td></td></tr><tr><td>created_at</td><td></td></tr><tr><td>updated_at</td><td></td></tr></table>"]
+  USER_PROFILE["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>USER_PROFILE</b></td></tr><tr><td>id</td><td>PK</td></tr><tr><td>user_id</td><td>FK, UK</td></tr><tr><td>first_name</td><td></td></tr><tr><td>last_name</td><td></td></tr><tr><td>birth_date</td><td></td></tr><tr><td>phone_number</td><td></td></tr><tr><td>city</td><td></td></tr><tr><td>country</td><td></td></tr><tr><td>bio</td><td></td></tr><tr><td>created_at</td><td></td></tr><tr><td>updated_at</td><td></td></tr></table>"]
+  WORKSPACE["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>WORKSPACE</b></td></tr><tr><td>id</td><td>PK</td></tr><tr><td>owner_id</td><td>FK</td></tr><tr><td>name</td><td></td></tr><tr><td>created_at</td><td></td></tr></table>"]
+  CHANNEL["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>CHANNEL</b></td></tr><tr><td>id</td><td>PK</td></tr><tr><td>workspace_id</td><td>FK</td></tr><tr><td>name</td><td></td></tr><tr><td>created_at</td><td></td></tr></table>"]
+  MESSAGE["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>MESSAGE</b></td></tr><tr><td>id</td><td>PK</td></tr><tr><td>author_id</td><td>FK</td></tr><tr><td>channel_id</td><td>FK</td></tr><tr><td>content</td><td></td></tr><tr><td>created_at</td><td></td></tr></table>"]
+  WORKSPACE_USER["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>WORKSPACE_USER</b></td></tr><tr><td>workspace_id</td><td>PK, FK</td></tr><tr><td>user_id</td><td>PK, FK</td></tr></table>"]
+  CHANNEL_USER["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='2'><b>CHANNEL_USER</b></td></tr><tr><td>channel_id</td><td>PK, FK</td></tr><tr><td>user_id</td><td>PK, FK</td></tr></table>"]
+
+  HAS_PROFILE{"HAS"}
+  OWNS{"OWNS"}
+  CONTAINS{"CONTAINS"}
+  WRITES{"WRITES"}
+  STORES{"STORES"}
+  JOINS_WS{"JOINS"}
+  JOINS_CH{"JOINS"}
+
+  USER ---|"0..1"| HAS_PROFILE
+  HAS_PROFILE ---|"1..1"| USER_PROFILE
+
+  USER ---|"0..n"| OWNS
+  OWNS ---|"1..1"| WORKSPACE
+
+  WORKSPACE ---|"0..n"| CONTAINS
+  CONTAINS ---|"1..1"| CHANNEL
+
+  USER ---|"0..n"| WRITES
+  WRITES ---|"1..1"| MESSAGE
+
+  CHANNEL ---|"0..n"| STORES
+  STORES ---|"1..1"| MESSAGE
+
+  USER ---|"1..1"| JOINS_WS
+  JOINS_WS ---|"0..n"| WORKSPACE_USER
+  WORKSPACE ---|"1..1"| JOINS_WS
+
+  USER ---|"1..1"| JOINS_CH
+  JOINS_CH ---|"0..n"| CHANNEL_USER
+  CHANNEL ---|"1..1"| JOINS_CH
+
+  class USER,USER_PROFILE,WORKSPACE,CHANNEL,MESSAGE,WORKSPACE_USER,CHANNEL_USER relation;
+  class HAS_PROFILE,OWNS,CONTAINS,WRITES,STORES,JOINS_WS,JOINS_CH assoc;

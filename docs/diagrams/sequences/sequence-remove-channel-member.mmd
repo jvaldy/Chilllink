@@ -1,0 +1,15 @@
+sequenceDiagram
+    actor Owner
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Click remove channel member
+    Frontend->>API: DELETE /api/workspaces/{workspaceId}/channels/{channelId}/members/{userId}
+    API->>API: Validate JWT and owner permission
+    API->>DB: Load workspace, channel and target user
+    DB-->>API: Data found
+    API->>DB: Remove channel membership
+    DB-->>API: Membership deleted
+    API-->>Frontend: 204 No Content
+    Frontend-->>Owner: Refresh channel members list

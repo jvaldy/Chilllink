@@ -1,0 +1,21 @@
+MCD - Chilllink (Merise conceptual model)
+
+Entities
+- USER(#id, email)
+- PROFILE(#id, first_name, last_name, birth_date, phone_number, city, country, bio)
+- WORKSPACE(#id, name)
+- CHANNEL(#id, name)
+- MESSAGE(#id, content, created_at)
+
+Associations and cardinalities
+- HAS_PROFILE: USER (0,1) <-> PROFILE (1,1)
+- OWNS: USER (0,n) <-> WORKSPACE (1,1)
+- CONTAINS: WORKSPACE (0,n) <-> CHANNEL (1,1)
+- STORES: CHANNEL (0,n) <-> MESSAGE (1,1)
+- WRITES: USER (0,n) <-> MESSAGE (1,1)
+- JOINS: USER (0,n) <-> WORKSPACE (0,n)
+- PARTICIPATES_IN: USER (0,n) <-> CHANNEL (0,n)
+
+Note
+- This is a business-oriented MCD: no SQL types, no FK columns, no indexes, and no technical join tables.
+- Technical detail remains in the MLD and MPD.

@@ -1,0 +1,16 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+    participant Mercure
+
+    User->>Frontend: Delete a message
+    Frontend->>API: DELETE /api/channels/{channelId}/messages/{id}
+    API->>API: Validate JWT and author permissions
+    API->>DB: Remove message
+    DB-->>API: Message deleted
+    API->>Mercure: Publish message deletion
+    Mercure-->>Frontend: Message removed event
+    API-->>Frontend: 204 No Content
+    Frontend-->>User: Remove message from thread

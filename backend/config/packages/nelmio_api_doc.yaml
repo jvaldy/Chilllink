@@ -17,7 +17,7 @@ nelmio_api_doc:
                 post:
                     tags: [Authentication]
                     summary: Authenticate a user and return a JWT token
-                    description: Public endpoint used by the frontend to retrieve a bearer token.
+                    description: Public endpoint used by the frontend to retrieve a bearer token. The canonical JSON body contains `email` and `password`. The legacy field `username` is also accepted when it contains the user's email.
                     security: []
                     requestBody:
                         required: true
@@ -26,6 +26,7 @@ nelmio_api_doc:
                                 schema:
                                     type: object
                                     required: [email, password]
+                                    additionalProperties: false
                                     properties:
                                         email:
                                             type: string
@@ -35,6 +36,21 @@ nelmio_api_doc:
                                             type: string
                                             format: password
                                             example: password123
+                                examples:
+                                    validCredentials:
+                                        summary: Valid payload
+                                        value:
+                                            email: user@email.com
+                                            password: password123
+                                    legacyUsernameAlias:
+                                        summary: Legacy payload still accepted
+                                        value:
+                                            username: user@email.com
+                                            password: password123
+                                    missingIdentifier:
+                                        summary: Invalid payload shape
+                                        value:
+                                            password: password123
                     responses:
                         '200':
                             description: Authentication successful
@@ -46,8 +62,38 @@ nelmio_api_doc:
                                             token:
                                                 type: string
                                                 example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+                        '400':
+                            description: Malformed request body. This happens when the identifier or password is missing, has the wrong type, or the JSON body is invalid.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            type:
+                                                type: string
+                                                example: https://tools.ietf.org/html/rfc2616#section-10
+                                            title:
+                                                type: string
+                                                example: An error occurred
+                                            status:
+                                                type: integer
+                                                example: 400
+                                            detail:
+                                                type: string
+                                                example: Bad Request
                         '401':
                             description: Invalid credentials
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: 401
+                                            message:
+                                                type: string
+                                                example: Invalid credentials.
 
     areas:
         path_patterns:

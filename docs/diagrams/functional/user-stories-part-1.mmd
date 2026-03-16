@@ -1,0 +1,61 @@
+%%{init: {
+  "theme":"base",
+  "themeVariables":{
+    "background":"#050816",
+    "primaryColor":"#0f172a",
+    "primaryBorderColor":"#f59e0b",
+    "primaryTextColor":"#f8fafc",
+    "secondaryColor":"#0f172a",
+    "secondaryBorderColor":"#60a5fa",
+    "secondaryTextColor":"#f8fafc",
+    "tertiaryColor":"#0f172a",
+    "tertiaryBorderColor":"#34d399",
+    "tertiaryTextColor":"#f8fafc",
+    "lineColor":"#94a3b8",
+    "textColor":"#f8fafc"
+  },
+  "flowchart":{"curve":"basis"}
+}}%%
+flowchart LR
+  classDef root fill:#111827,stroke:#f59e0b,stroke-width:2.5px,color:#f8fafc;
+  classDef branchA fill:#111827,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+  classDef branchB fill:#111827,stroke:#34d399,stroke-width:2px,color:#ecfdf5;
+  classDef leafA fill:#0b1220,stroke:#60a5fa,stroke-width:1.5px,color:#dbeafe;
+  classDef leafB fill:#0b1220,stroke:#34d399,stroke-width:1.5px,color:#dcfce7;
+  classDef note fill:#111827,stroke:#facc15,stroke-width:1.5px,color:#f8fafc;
+
+  ROOT["Chilllink<br/>User Stories<br/>Part 1"]:::root
+  ACCOUNT["Account management"]:::branchA
+  WORKSPACE["Workspace management"]:::branchB
+
+  linkStyle default stroke:#94a3b8,stroke-width:2px;
+
+  ROOT --- ACCOUNT
+  ROOT --- WORKSPACE
+
+  A1["Register"]:::leafA
+  A2["Log in"]:::leafA
+  A3["Manage profile"]:::leafA
+  A4["Log out"]:::leafA
+  ACCOUNT --- A1
+  ACCOUNT --- A2
+  ACCOUNT --- A3
+  ACCOUNT --- A4
+
+  W1["Browse workspaces"]:::leafB
+  W2["Create workspace"]:::leafB
+  W3["Rename workspace"]:::leafB
+  W4["Delete workspace"]:::leafB
+  W5["View workspace members"]:::leafB
+  W6["Add workspace member"]:::leafB
+  W7["Remove workspace member"]:::leafB
+  WORKSPACE --- W1
+  WORKSPACE --- W2
+  WORKSPACE --- W3
+  WORKSPACE --- W4
+  WORKSPACE --- W5
+  WORKSPACE --- W6
+  WORKSPACE --- W7
+
+  TEMPLATE["As a [user]<br/>I want [goal]<br/>so that [benefit]."]:::note
+  ROOT -.-> TEMPLATE

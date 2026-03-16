@@ -16,6 +16,7 @@
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.4.*",
         "symfony/mercure-bundle": "^0.4.2",
+        "symfony/monolog-bundle": "^3.10",
         "symfony/runtime": "6.4.*",
         "symfony/serializer": "6.4.*",
         "symfony/twig-bundle": "6.4.*",

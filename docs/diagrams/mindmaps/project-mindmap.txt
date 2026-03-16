@@ -1,0 +1,61 @@
+Project mind map - Chilllink
+
+Chilllink
+- Product
+  - Real-time collaboration
+  - Workspaces
+  - Channels
+  - Messaging
+- Frontend
+  - React
+  - Vite
+  - Dashboard
+  - Authentication screens
+  - Profile modal
+  - Workspace management
+  - Channel management
+  - Message composer
+  - Typing indicator
+- Backend
+  - Symfony 6.4
+  - Controllers
+  - Services
+  - Security voters
+  - Doctrine ORM
+  - Nelmio OpenAPI
+  - JWT authentication
+- Data
+  - PostgreSQL 16
+  - User
+  - UserProfile
+  - Workspace
+  - Channel
+  - Message
+  - Workspace membership
+  - Channel membership
+- Realtime
+  - Mercure
+  - SSE subscriptions
+  - Message events
+  - Typing events
+- Security
+  - JWT tokens
+  - Authenticated routes
+  - Workspace ownership
+  - Channel access control
+- Testing
+  - PHPUnit
+  - Vitest
+  - React Testing Library
+  - Coverage reports
+- DevOps
+  - Docker Compose
+  - Dev mode
+  - Prod-like mode
+  - Adminer
+- Documentation
+  - README
+  - OpenAPI / Swagger
+  - UML
+  - MCD / MLD / MPD
+  - Architecture diagrams

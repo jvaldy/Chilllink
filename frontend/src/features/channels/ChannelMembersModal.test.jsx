@@ -79,4 +79,31 @@ describe("ChannelMembersModal", () => {
     await waitFor(() => expect(removeChannel).toHaveBeenCalledWith(8));
     expect(onClose).toHaveBeenCalled();
   });
+
+  // Scenario: affiche un message metier si l'utilisateur n'est pas membre du workspace
+  it("affiche une erreur metier lors d'un ajout hors workspace", async () => {
+    const apiError = Object.assign(new Error("User is not a workspace member"), {
+      payload: { errorCode: "USER_NOT_WORKSPACE_MEMBER" },
+    });
+    add.mockRejectedValueOnce(apiError);
+
+    render(
+      <ChannelMembersModal
+        workspaceId={7}
+        channel={{ id: 8, name: "general" }}
+        renameChannel={renameChannel}
+        removeChannel={removeChannel}
+        onClose={onClose}
+      />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("email@exemple.com"), {
+      target: { value: "outsider@test.dev" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
+
+    expect(
+      await screen.findByText(/tu ne peux ajouter que des utilisateurs appartenant au workspace/i)
+    ).toBeInTheDocument();
+  });
 });

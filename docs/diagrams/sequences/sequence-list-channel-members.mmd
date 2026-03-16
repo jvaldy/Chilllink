@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor Owner
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Open channel members modal
+    Frontend->>API: GET /api/workspaces/{workspaceId}/channels/{channelId}/members
+    API->>API: Validate JWT and channel administration rights
+    API->>DB: Load channel members
+    DB-->>API: Member list
+    API-->>Frontend: 200 OK + members
+    Frontend-->>Owner: Display channel members modal

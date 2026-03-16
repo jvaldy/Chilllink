@@ -136,12 +136,18 @@ final class ChannelMemberController extends AbstractController
 
         $userToAdd = $userRepo->findOneBy(['email' => $email]);
         if (!$userToAdd) {
-            return $this->json(['error' => 'User not found'], 404);
+            return $this->json([
+                'error' => 'Seuls les utilisateurs appartenant au workspace peuvent être ajoutés au channel',
+                'errorCode' => 'USER_NOT_WORKSPACE_MEMBER',
+            ], 400);
         }
 
         // doit déjà être membre workspace
         if (!$workspace->getMembers()->contains($userToAdd)) {
-            return $this->json(['error' => 'User is not a workspace member'], 400);
+            return $this->json([
+                'error' => 'Seuls les utilisateurs appartenant au workspace peuvent être ajoutés au channel',
+                'errorCode' => 'USER_NOT_WORKSPACE_MEMBER',
+            ], 400);
         }
 
         if ($channel->isMember($userToAdd)) {

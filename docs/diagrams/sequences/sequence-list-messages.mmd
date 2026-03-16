@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Open channel thread
+    Frontend->>API: GET /api/channels/{channelId}/messages
+    API->>API: Validate JWT
+    API->>DB: Check channel membership and load messages
+    DB-->>API: Access data + message list
+    API-->>Frontend: 200 OK + messages
+    Frontend-->>User: Display message history

@@ -1,0 +1,55 @@
+%%{init: {
+  "theme":"base",
+  "themeVariables":{
+    "background":"#050816",
+    "primaryColor":"#0f172a",
+    "primaryBorderColor":"#f59e0b",
+    "primaryTextColor":"#f8fafc",
+    "secondaryColor":"#0f172a",
+    "secondaryBorderColor":"#60a5fa",
+    "secondaryTextColor":"#f8fafc",
+    "tertiaryColor":"#0f172a",
+    "tertiaryBorderColor":"#34d399",
+    "tertiaryTextColor":"#f8fafc",
+    "lineColor":"#94a3b8",
+    "textColor":"#f8fafc"
+  },
+  "flowchart":{"curve":"basis"}
+}}%%
+flowchart LR
+  classDef root fill:#111827,stroke:#f59e0b,stroke-width:2.5px,color:#f8fafc;
+  classDef stepA fill:#111827,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+  classDef stepB fill:#111827,stroke:#34d399,stroke-width:2px,color:#ecfdf5;
+  classDef stepC fill:#111827,stroke:#f59e0b,stroke-width:2px,color:#fff7ed;
+  classDef stepD fill:#0b1220,stroke:#94a3b8,stroke-width:1.5px,color:#e2e8f0;
+  classDef warn fill:#2a0f12,stroke:#ef4444,stroke-width:1.5px,color:#fee2e2;
+  classDef info fill:#0b1220,stroke:#a855f7,stroke-width:1.5px,color:#f3e8ff;
+  classDef note fill:#111827,stroke:#facc15,stroke-width:1.5px,color:#f8fafc;
+
+  subgraph WF["JWT LOGIN WORKFLOW"]
+    direction TB
+    A["POST /api/login_check<br/>{ email, password }"]:::stepA
+    B["Verify credentials<br/>User + password hasher"]:::stepB
+    C{"Valid credentials?"}:::stepC
+    D["401 Unauthorized<br/>Invalid credentials"]:::warn
+    E["Generate signed JWT<br/>(LexikJWTAuthenticationBundle)"]:::stepB
+    F["200 OK<br/>{ token }"]:::stepA
+
+    A --> B --> C
+    C -- "No" --> D
+    C -- "Yes" --> E --> F
+  end
+
+  subgraph K["KEY POINTS"]
+    direction TB
+    K1["Credentials verified server-side"]:::info
+    K2["If OK: create a signed JWT"]:::info
+    K3["Frontend stores token (localStorage authToken)"]:::info
+    K4["Protected API calls send:<br/>Authorization: Bearer <token>"]:::info
+    K5["Backend validates signature, expiry, roles"]:::info
+  end
+
+  N["JWT format = header.payload.signature"]:::note
+
+  WF --- K
+  K --- N

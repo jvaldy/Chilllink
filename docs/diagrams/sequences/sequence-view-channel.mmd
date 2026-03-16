@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Open channel details
+    Frontend->>API: GET /api/workspaces/{workspaceId}/channels/{id}
+    API->>API: Validate JWT and workspace access
+    API->>DB: Load channel details
+    DB-->>API: Channel found
+    API-->>Frontend: 200 OK + channel
+    Frontend-->>User: Display channel header and metadata

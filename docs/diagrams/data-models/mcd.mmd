@@ -1,0 +1,41 @@
+flowchart LR
+  classDef entity fill:#0b0f19,stroke:#94a3b8,stroke-width:1.5px,color:#e5e7eb;
+  classDef assoc fill:#1f2937,stroke:#f59e0b,stroke-width:1.5px,color:#f8fafc;
+
+  USER["USER<br/>#id<br/>email"]
+  PROFILE["PROFILE<br/>#id<br/>first_name<br/>last_name<br/>birth_date<br/>phone_number<br/>city<br/>country<br/>bio"]
+  WORKSPACE["WORKSPACE<br/>#id<br/>name"]
+  CHANNEL["CHANNEL<br/>#id<br/>name"]
+  MESSAGE["MESSAGE<br/>#id<br/>content<br/>created_at"]
+
+  HAS_PROFILE{"HAS_PROFILE"}
+  OWNS{"OWNS"}
+  CONTAINS{"CONTAINS"}
+  STORES{"STORES"}
+  WRITES{"WRITES"}
+  JOINS{"JOINS"}
+  PARTICIPATES_IN{"PARTICIPATES_IN"}
+
+  USER ---|"0..1"| HAS_PROFILE
+  HAS_PROFILE ---|"1..1"| PROFILE
+
+  USER ---|"0..n"| OWNS
+  OWNS ---|"1..1"| WORKSPACE
+
+  WORKSPACE ---|"0..n"| CONTAINS
+  CONTAINS ---|"1..1"| CHANNEL
+
+  CHANNEL ---|"0..n"| STORES
+  STORES ---|"1..1"| MESSAGE
+
+  USER ---|"0..n"| WRITES
+  WRITES ---|"1..1"| MESSAGE
+
+  USER ---|"0..n"| JOINS
+  JOINS ---|"0..n"| WORKSPACE
+
+  USER ---|"0..n"| PARTICIPATES_IN
+  PARTICIPATES_IN ---|"0..n"| CHANNEL
+
+  class USER,PROFILE,WORKSPACE,CHANNEL,MESSAGE entity;
+  class HAS_PROFILE,OWNS,CONTAINS,STORES,WRITES,JOINS,PARTICIPATES_IN assoc;

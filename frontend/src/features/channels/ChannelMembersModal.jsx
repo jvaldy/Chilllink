@@ -2,6 +2,21 @@ import { useMemo, useState } from "react";
 import { useChannelMembers } from "./useChannelMembers";
 import "./Channel.css";
 
+function getAddMemberErrorMessage(error) {
+  const code = error?.payload?.errorCode;
+  const message = (error?.message || "").toLowerCase();
+
+  if (
+    code === "USER_NOT_WORKSPACE_MEMBER" ||
+    message.includes("not a workspace member") ||
+    message.includes("user not found")
+  ) {
+    return "Tu ne peux ajouter que des utilisateurs appartenant au workspace.";
+  }
+
+  return error?.message || "Impossible d'ajouter ce membre.";
+}
+
 export default function ChannelMembersModal({
   workspaceId,
   channel,
@@ -19,6 +34,7 @@ export default function ChannelMembersModal({
   const [submitting, setSubmitting] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [addError, setAddError] = useState(null);
 
   const sortedMembers = useMemo(() => {
     return [...members].sort((a, b) =>
@@ -49,9 +65,12 @@ export default function ChannelMembersModal({
     if (!email.trim()) return;
 
     setSubmitting(true);
+    setAddError(null);
     try {
       await add(email.trim());
       setEmail("");
+    } catch (error) {
+      setAddError(getAddMemberErrorMessage(error));
     } finally {
       setSubmitting(false);
     }
@@ -140,7 +159,10 @@ export default function ChannelMembersModal({
               className="cl-input"
               placeholder="email@exemple.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (addError) setAddError(null);
+              }}
               disabled={submitting}
             />
 
@@ -153,6 +175,8 @@ export default function ChannelMembersModal({
             </button>
           </div>
         </form>
+
+        {addError && <div className="cl-modal-alert">{addError}</div>}
 
         {/* MEMBERS LIST */}
         {loading && (

@@ -1,0 +1,67 @@
+﻿erDiagram
+    USER ||--o| USER_PROFILE : has
+    USER ||--o{ WORKSPACE : owns
+    WORKSPACE ||--o{ CHANNEL : contains
+    CHANNEL ||--o{ MESSAGE : contains
+    USER ||--o{ MESSAGE : writes
+
+    WORKSPACE ||--o{ WORKSPACE_USER : links
+    USER ||--o{ WORKSPACE_USER : joins
+
+    CHANNEL ||--o{ CHANNEL_USER : links
+    USER ||--o{ CHANNEL_USER : joins
+
+    USER {
+      int id PK
+      varchar email
+      json roles
+      varchar password
+      timestamp created_at
+      timestamp updated_at
+    }
+
+    USER_PROFILE {
+      int id PK
+      int user_id FK
+      varchar first_name
+      varchar last_name
+      date birth_date
+      varchar phone_number
+      varchar city
+      varchar country
+      text bio
+      timestamp created_at
+      timestamp updated_at
+    }
+
+    WORKSPACE {
+      int id PK
+      int owner_id FK
+      varchar name
+      timestamp created_at
+    }
+
+    CHANNEL {
+      int id PK
+      int workspace_id FK
+      varchar name
+      timestamp created_at
+    }
+
+    MESSAGE {
+      int id PK
+      int author_id FK
+      int channel_id FK
+      text content
+      timestamp created_at
+    }
+
+    WORKSPACE_USER {
+      int workspace_id PK
+      int user_id PK
+    }
+
+    CHANNEL_USER {
+      int channel_id PK
+      int user_id PK
+    }

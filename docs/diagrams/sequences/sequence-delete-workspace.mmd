@@ -1,0 +1,18 @@
+sequenceDiagram
+    actor Owner
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Confirm workspace deletion
+    Frontend->>API: DELETE /api/workspaces/{id}
+    API->>API: Validate JWT and owner permission
+    API->>DB: Load workspace with channels
+    DB-->>API: Workspace found
+    API->>DB: Delete channel messages
+    API->>DB: Delete channels
+    API->>DB: Delete workspace
+    DB-->>API: Deletion committed
+    API-->>Frontend: 204 No Content
+    Frontend->>Frontend: Remove workspace from local state
+    Frontend-->>Owner: Refresh workspace selection

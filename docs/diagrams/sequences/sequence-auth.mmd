@@ -1,0 +1,15 @@
+sequenceDiagram
+    actor User
+    participant Frontend as React frontend
+    participant API as Symfony API
+    participant Security as Lexik JWT
+    participant DB as PostgreSQL
+
+    User->>Frontend: Submit email and password
+    Frontend->>API: POST /api/login_check
+    API->>DB: Load user by email
+    DB-->>API: User record + hashed password
+    API->>Security: Validate credentials and build JWT
+    Security-->>API: Signed token
+    API-->>Frontend: 200 OK + token
+    Frontend-->>User: Store token and open dashboard

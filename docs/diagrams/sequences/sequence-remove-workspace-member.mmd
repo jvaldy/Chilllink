@@ -1,0 +1,21 @@
+sequenceDiagram
+    actor Owner
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Click remove member
+    Frontend->>API: DELETE /api/workspaces/{id}/members/{userId}
+    API->>API: Validate JWT and owner permission
+    API->>DB: Load workspace and target user
+    DB-->>API: Workspace and user found
+
+    alt Target is workspace owner
+        API-->>Frontend: 400 Bad Request
+        Frontend-->>Owner: Show protected-owner error
+    else Removable member
+        API->>DB: Remove membership
+        DB-->>API: Membership deleted
+        API-->>Frontend: 204 No Content
+        Frontend-->>Owner: Refresh members list
+    end

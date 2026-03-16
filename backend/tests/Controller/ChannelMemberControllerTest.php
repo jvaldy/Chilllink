@@ -63,6 +63,41 @@ class ChannelMemberControllerTest extends ApiWebTestCase
             json_encode(['email' => $outsider->getEmail()])
         );
         $this->assertResponseStatusCodeSame(400);
+        $json = $this->responseJson($client);
+        $this->assertSame(
+            'Seuls les utilisateurs appartenant au workspace peuvent être ajoutés au channel',
+            $json['error'] ?? null
+        );
+        $this->assertSame('USER_NOT_WORKSPACE_MEMBER', $json['errorCode'] ?? null);
+    }
+
+    // Un email inconnu renvoie la meme erreur metier pour eviter un message "User not found".
+    public function testOwnerCannotAddUnknownUser(): void
+    {
+        $client = static::createClient();
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+
+        $owner = $this->createUser($em, $this->uniqueEmail('cm_owner_unknown'));
+        $workspace = $this->createWorkspace($em, $owner, 'Channel Membership Unknown');
+        $channel = $this->createChannel($em, $workspace, 'general', [$owner]);
+        $jwt = $this->issueJwt($client, $owner);
+
+        $client->request(
+            'POST',
+            sprintf('/api/workspaces/%d/channels/%d/members', $workspace->getId(), $channel->getId()),
+            [],
+            [],
+            $this->authHeaders($jwt, true),
+            json_encode(['email' => $this->uniqueEmail('missing_channel_member')])
+        );
+
+        $this->assertResponseStatusCodeSame(400);
+        $json = $this->responseJson($client);
+        $this->assertSame(
+            'Seuls les utilisateurs appartenant au workspace peuvent être ajoutés au channel',
+            $json['error'] ?? null
+        );
+        $this->assertSame('USER_NOT_WORKSPACE_MEMBER', $json['errorCode'] ?? null);
     }
 
     // L'owner peut retirer un membre deja present du channel.

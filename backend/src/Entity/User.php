@@ -1,4 +1,6 @@
-<?php
+﻿<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -14,57 +16,63 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    // Identifiant technique
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Groups(['workspace:item', 'message:item', 'channel:item'])]
     private ?int $id = null;
 
+    // Email unique de l'utilisateur
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     #[Assert\NotBlank(message: 'Email is required')]
     #[Assert\Email(message: 'Invalid email format')]
     #[Groups(['workspace:item', 'message:item', 'channel:item'])]
-
     private ?string $email = null;
 
     /**
      * @var array<string>
      */
+    // Rôles applicatifs
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
-    /**
-     * @var string|null The hashed password
-     */
+    // Mot de passe hashé
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank(message: 'Password is required')]
     private ?string $password = null;
 
+    // Dates d'audit
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
 
+    // Profil utilisateur (1-1)
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: UserProfile::class, cascade: ['persist', 'remove'])]
     private ?UserProfile $profile = null;
 
+    // Initialise les dates d'audit
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    // Identifiant interne
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    // Email de connexion
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    // Met à jour l'email
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -72,25 +80,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
+    // Identifiant de connexion (email)
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * Returns the roles granted to the user.
-     *
-     * @see UserInterface
-     */
+    // Rôles (ROLE_USER ajouté par défaut)
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_values(array_unique($roles));
@@ -99,6 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @param array<string> $roles
      */
+    // Définit les rôles
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -106,14 +106,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+    // Mot de passe hashé
     public function getPassword(): string
     {
         return (string) $this->password;
     }
 
+    // Met à jour le mot de passe
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -121,38 +120,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Clears any temporary, sensitive data on the user.
-     *
-     * @see UserInterface
-     */
+    // Nettoie les données sensibles temporaires
     public function eraseCredentials(): void
     {
-        // If you had a plainPassword property, clear it here
-        // $this->plainPassword = null;
+        // Si un plainPassword existe, le vider ici
     }
 
+    // Date de création
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    // Date de dernière mise à jour
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-
+    // Profil associé
     public function getProfile(): ?UserProfile
     {
         return $this->profile;
     }
 
+    // Associe un profil
     public function setProfile(UserProfile $profile): self
     {
         $this->profile = $profile;
         return $this;
-    } 
-
-
+    }
 }

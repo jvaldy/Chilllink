@@ -1,0 +1,28 @@
+flowchart LR
+  classDef table fill:#0b0f19,stroke:#94a3b8,stroke-width:1.5px,color:#e5e7eb;
+
+  USER["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>USER</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>id</td><td>INT</td><td>PK, sequence user_id_seq</td></tr><tr><td>email</td><td>VARCHAR(180)</td><td>NOT NULL, UNIQUE INDEX</td></tr><tr><td>roles</td><td>JSON</td><td>NOT NULL</td></tr><tr><td>password</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr><tr><td>created_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr><tr><td>updated_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr></table>"]
+
+  USER_PROFILE["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>USER_PROFILE</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>id</td><td>INT</td><td>PK, sequence user_profile_id_seq</td></tr><tr><td>user_id</td><td>INT</td><td>NOT NULL, UNIQUE INDEX, FK</td></tr><tr><td>first_name</td><td>VARCHAR(100)</td><td>DEFAULT NULL</td></tr><tr><td>last_name</td><td>VARCHAR(100)</td><td>DEFAULT NULL</td></tr><tr><td>birth_date</td><td>DATE</td><td>DEFAULT NULL</td></tr><tr><td>phone_number</td><td>VARCHAR(50)</td><td>DEFAULT NULL</td></tr><tr><td>city</td><td>VARCHAR(100)</td><td>DEFAULT NULL</td></tr><tr><td>country</td><td>VARCHAR(100)</td><td>DEFAULT NULL</td></tr><tr><td>bio</td><td>TEXT</td><td>DEFAULT NULL</td></tr><tr><td>created_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr><tr><td>updated_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr></table>"]
+
+  WORKSPACE["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>WORKSPACE</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>id</td><td>INT</td><td>PK, sequence workspace_id_seq</td></tr><tr><td>owner_id</td><td>INT</td><td>NOT NULL, FK</td></tr><tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr><tr><td>created_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr></table>"]
+
+  CHANNEL["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>CHANNEL</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>id</td><td>INT</td><td>PK, sequence channel_id_seq</td></tr><tr><td>workspace_id</td><td>INT</td><td>NOT NULL, FK</td></tr><tr><td>name</td><td>VARCHAR(255)</td><td>NOT NULL</td></tr><tr><td>created_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr></table>"]
+
+  MESSAGE["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>MESSAGE</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>id</td><td>INT</td><td>PK, sequence message_id_seq</td></tr><tr><td>author_id</td><td>INT</td><td>NOT NULL, FK</td></tr><tr><td>channel_id</td><td>INT</td><td>NOT NULL, FK</td></tr><tr><td>content</td><td>TEXT</td><td>NOT NULL</td></tr><tr><td>created_at</td><td>TIMESTAMP(0) WITHOUT TIME ZONE</td><td>NOT NULL</td></tr></table>"]
+
+  WORKSPACE_USER["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>WORKSPACE_USER</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>workspace_id</td><td>INT</td><td>PK, FK, NOT NULL</td></tr><tr><td>user_id</td><td>INT</td><td>PK, FK, NOT NULL</td></tr></table>"]
+
+  CHANNEL_USER["<table border='1' cellspacing='0' cellpadding='4' style='border-collapse:collapse;width:100%;'><tr><td colspan='3'><b>CHANNEL_USER</b></td></tr><tr><td><b>Column</b></td><td><b>SQL type</b></td><td><b>Constraints</b></td></tr><tr><td>channel_id</td><td>INT</td><td>PK, FK, NOT NULL</td></tr><tr><td>user_id</td><td>INT</td><td>PK, FK, NOT NULL</td></tr></table>"]
+
+  USER_PROFILE -->|FK user_id, ON DELETE CASCADE| USER
+  WORKSPACE -->|FK owner_id| USER
+  CHANNEL -->|FK workspace_id| WORKSPACE
+  MESSAGE -->|FK author_id| USER
+  MESSAGE -->|FK channel_id| CHANNEL
+  WORKSPACE_USER -->|FK workspace_id, ON DELETE CASCADE| WORKSPACE
+  WORKSPACE_USER -->|FK user_id, ON DELETE CASCADE| USER
+  CHANNEL_USER -->|FK channel_id, ON DELETE CASCADE| CHANNEL
+  CHANNEL_USER -->|FK user_id, ON DELETE CASCADE| USER
+
+  class USER,USER_PROFILE,WORKSPACE,CHANNEL,MESSAGE,WORKSPACE_USER,CHANNEL_USER table;

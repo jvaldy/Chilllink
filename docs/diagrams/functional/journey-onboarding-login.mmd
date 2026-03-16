@@ -1,0 +1,52 @@
+﻿%%{init: {
+  "theme":"base",
+  "themeVariables":{
+    "background":"#050816",
+    "primaryColor":"#0f172a",
+    "primaryBorderColor":"#f59e0b",
+    "primaryTextColor":"#f8fafc",
+    "secondaryColor":"#0f172a",
+    "secondaryBorderColor":"#60a5fa",
+    "secondaryTextColor":"#f8fafc",
+    "tertiaryColor":"#0f172a",
+    "tertiaryBorderColor":"#34d399",
+    "tertiaryTextColor":"#f8fafc",
+    "lineColor":"#94a3b8",
+    "textColor":"#f8fafc"
+  },
+  "flowchart":{"curve":"basis"}
+}}%%
+flowchart LR
+  classDef root fill:#111827,stroke:#f59e0b,stroke-width:2.5px,color:#f8fafc;
+  classDef stepA fill:#111827,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+  classDef stepB fill:#111827,stroke:#34d399,stroke-width:2px,color:#ecfdf5;
+  classDef stepC fill:#111827,stroke:#f59e0b,stroke-width:2px,color:#fff7ed;
+  classDef warn fill:#2a0f12,stroke:#ef4444,stroke-width:1.5px,color:#fee2e2;
+  classDef note fill:#0b1220,stroke:#a855f7,stroke-width:1.5px,color:#f3e8ff;
+
+  subgraph FLOW["USER JOURNEY - ONBOARDING & LOGIN"]
+    direction TB
+    A["Landing / Login screen"]:::stepA
+    B{"New user?"}:::stepC
+    C["Register form<br/>email + password"]:::stepB
+    D["POST /api/register"]:::stepA
+    E{"Register OK?"}:::stepC
+    F["Show errors"]:::warn
+    G["Login form"]:::stepB
+    H["POST /api/login_check"]:::stepA
+    I{"Login OK?"}:::stepC
+    J["Store JWT token"]:::stepB
+    K["Redirect to Dashboard"]:::stepA
+
+    A --> B
+    B -- "Yes" --> C --> D --> E
+    E -- "No" --> F --> C
+    E -- "Yes" --> G
+    B -- "No" --> G
+    G --> H --> I
+    I -- "No" --> F --> G
+    I -- "Yes" --> J --> K
+  end
+
+  N["JWT used for protected API calls"]:::note
+  FLOW --- N

@@ -1,0 +1,23 @@
+sequenceDiagram
+    actor User
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    User->>Frontend: Select a locked channel
+    Frontend->>API: GET /api/channels/{id}/messages
+    API->>API: Validate JWT
+    API->>DB: Load channel and memberships
+    DB-->>API: Channel access data
+
+    alt User is not a channel member
+        API-->>Frontend: 403 Forbidden
+        Frontend->>Frontend: Set locked state
+        Frontend-->>User: Show locked channel message
+        Frontend-->>User: Disable message composer
+    else User is a channel member
+        API->>DB: Load messages
+        DB-->>API: Message list
+        API-->>Frontend: 200 OK + messages
+        Frontend-->>User: Display discussion
+    end

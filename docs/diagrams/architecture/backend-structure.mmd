@@ -1,0 +1,50 @@
+%%{init: {
+  "theme":"base",
+  "themeVariables":{
+    "background":"#050816",
+    "primaryColor":"#0f172a",
+    "primaryBorderColor":"#f59e0b",
+    "primaryTextColor":"#f8fafc",
+    "secondaryColor":"#0f172a",
+    "secondaryBorderColor":"#60a5fa",
+    "secondaryTextColor":"#f8fafc",
+    "tertiaryColor":"#0f172a",
+    "tertiaryBorderColor":"#34d399",
+    "tertiaryTextColor":"#f8fafc",
+    "lineColor":"#94a3b8",
+    "textColor":"#f8fafc"
+  },
+  "flowchart":{"curve":"basis"}
+}}%%
+flowchart LR
+  classDef root fill:#111827,stroke:#f59e0b,stroke-width:2.5px,color:#f8fafc;
+  classDef blockA fill:#111827,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+  classDef blockB fill:#111827,stroke:#34d399,stroke-width:2px,color:#ecfdf5;
+  classDef blockC fill:#111827,stroke:#f59e0b,stroke-width:2px,color:#fff7ed;
+  classDef blockD fill:#0b1220,stroke:#94a3b8,stroke-width:1.5px,color:#e2e8f0;
+
+  ROOT["Backend structure (Symfony 6.4)"]:::root
+
+  HTTP["HTTP layer<br/>Controllers + Routes"]:::blockA
+  SECURITY["Security<br/>JWT + Voters"]:::blockA
+  SERVICES["Services<br/>Business logic"]:::blockB
+  DTO["DTO + Validation"]:::blockB
+  DATA["Data access<br/>Doctrine ORM + Repositories"]:::blockC
+  ENTITIES["Domain entities"]:::blockD
+  REALTIME["Realtime<br/>Mercure publishers"]:::blockC
+  DOCS["OpenAPI<br/>Nelmio"]:::blockC
+  TESTS["Testing<br/>PHPUnit"]:::blockC
+
+  ROOT --- HTTP
+  ROOT --- SECURITY
+  ROOT --- SERVICES
+  ROOT --- DTO
+  ROOT --- DATA
+  ROOT --- ENTITIES
+  ROOT --- REALTIME
+  ROOT --- DOCS
+  ROOT --- TESTS
+
+  HTTP --> SERVICES
+  SERVICES --> DATA
+  DATA --> ENTITIES

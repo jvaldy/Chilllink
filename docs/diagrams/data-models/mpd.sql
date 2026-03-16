@@ -1,0 +1,150 @@
+-- MPD Chilllink (PostgreSQL 16)
+-- Source: Doctrine migrations currently present in backend/migrations
+-- No CHECK constraints are defined in the current schema.
+
+CREATE SEQUENCE "user_id_seq" INCREMENT BY 1 MINVALUE 1 START 1;
+CREATE SEQUENCE workspace_id_seq INCREMENT BY 1 MINVALUE 1 START 1;
+CREATE SEQUENCE channel_id_seq INCREMENT BY 1 MINVALUE 1 START 1;
+CREATE SEQUENCE message_id_seq INCREMENT BY 1 MINVALUE 1 START 1;
+CREATE SEQUENCE user_profile_id_seq INCREMENT BY 1 MINVALUE 1 START 1;
+
+CREATE TABLE "user" (
+  id INT NOT NULL,
+  email VARCHAR(180) NOT NULL,
+  roles JSON NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE workspace (
+  id INT NOT NULL,
+  owner_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE channel (
+  id INT NOT NULL,
+  workspace_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE message (
+  id INT NOT NULL,
+  author_id INT NOT NULL,
+  channel_id INT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE workspace_user (
+  workspace_id INT NOT NULL,
+  user_id INT NOT NULL,
+  PRIMARY KEY (workspace_id, user_id)
+);
+
+CREATE TABLE channel_user (
+  channel_id INT NOT NULL,
+  user_id INT NOT NULL,
+  PRIMARY KEY (channel_id, user_id)
+);
+
+CREATE TABLE user_profile (
+  id INT NOT NULL,
+  user_id INT NOT NULL,
+  first_name VARCHAR(100) DEFAULT NULL,
+  last_name VARCHAR(100) DEFAULT NULL,
+  birth_date DATE DEFAULT NULL,
+  phone_number VARCHAR(50) DEFAULT NULL,
+  city VARCHAR(100) DEFAULT NULL,
+  country VARCHAR(100) DEFAULT NULL,
+  bio TEXT DEFAULT NULL,
+  created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (email);
+CREATE UNIQUE INDEX UNIQ_D95AB405A76ED395 ON user_profile (user_id);
+
+CREATE INDEX IDX_8D9400197E3C61F9 ON workspace (owner_id);
+CREATE INDEX IDX_A2F98E4782D40A1F ON channel (workspace_id);
+CREATE INDEX IDX_B6BD307FF675F31B ON message (author_id);
+CREATE INDEX IDX_B6BD307F72F5A1AA ON message (channel_id);
+CREATE INDEX IDX_C971A58B82D40A1F ON workspace_user (workspace_id);
+CREATE INDEX IDX_C971A58BA76ED395 ON workspace_user (user_id);
+CREATE INDEX IDX_11C7753772F5A1AA ON channel_user (channel_id);
+CREATE INDEX IDX_11C77537A76ED395 ON channel_user (user_id);
+
+COMMENT ON COLUMN "user".created_at IS '(DC2Type:datetime_immutable)';
+COMMENT ON COLUMN "user".updated_at IS '(DC2Type:datetime_immutable)';
+COMMENT ON COLUMN workspace.created_at IS '(DC2Type:datetime_immutable)';
+COMMENT ON COLUMN channel.created_at IS '(DC2Type:datetime_immutable)';
+COMMENT ON COLUMN message.created_at IS '(DC2Type:datetime_immutable)';
+COMMENT ON COLUMN user_profile.created_at IS '(DC2Type:datetime_immutable)';
+COMMENT ON COLUMN user_profile.updated_at IS '(DC2Type:datetime_immutable)';
+
+ALTER TABLE workspace
+  ADD CONSTRAINT FK_8D9400197E3C61F9
+  FOREIGN KEY (owner_id)
+  REFERENCES "user" (id)
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE channel
+  ADD CONSTRAINT FK_A2F98E4782D40A1F
+  FOREIGN KEY (workspace_id)
+  REFERENCES workspace (id)
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE message
+  ADD CONSTRAINT FK_B6BD307FF675F31B
+  FOREIGN KEY (author_id)
+  REFERENCES "user" (id)
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE message
+  ADD CONSTRAINT FK_B6BD307F72F5A1AA
+  FOREIGN KEY (channel_id)
+  REFERENCES channel (id)
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE workspace_user
+  ADD CONSTRAINT FK_C971A58B82D40A1F
+  FOREIGN KEY (workspace_id)
+  REFERENCES workspace (id)
+  ON DELETE CASCADE
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE workspace_user
+  ADD CONSTRAINT FK_C971A58BA76ED395
+  FOREIGN KEY (user_id)
+  REFERENCES "user" (id)
+  ON DELETE CASCADE
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE channel_user
+  ADD CONSTRAINT FK_11C7753772F5A1AA
+  FOREIGN KEY (channel_id)
+  REFERENCES channel (id)
+  ON DELETE CASCADE
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE channel_user
+  ADD CONSTRAINT FK_11C77537A76ED395
+  FOREIGN KEY (user_id)
+  REFERENCES "user" (id)
+  ON DELETE CASCADE
+  NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE user_profile
+  ADD CONSTRAINT FK_D95AB405A76ED395
+  FOREIGN KEY (user_id)
+  REFERENCES "user" (id)
+  ON DELETE CASCADE
+  NOT DEFERRABLE INITIALLY IMMEDIATE;

@@ -1,0 +1,17 @@
+<svg width="760" height="420" viewBox="0 0 760 420" xmlns="http://www.w3.org/2000/svg">
+  <rect width="760" height="420" fill="#0B0E14"/>
+  <rect x="94" y="84" width="570" height="228" rx="16" fill="#2B2D31"/>
+  <rect x="94" y="84" width="570" height="76" rx="16" fill="#27292D"/>
+  <text x="122" y="118" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700">Supprimer le workspace</text>
+  <text x="122" y="140" fill="#B5BAC1" font-family="Segoe UI, Arial, sans-serif" font-size="13">Cette action est irreversible</text>
+  <rect x="612" y="100" width="34" height="34" rx="10" fill="#2F3239" stroke="#4B5563"/>
+  <text x="623" y="122" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="18">×</text>
+  <rect x="124" y="188" width="510" height="62" rx="12" fill="rgba(255,80,80,0.10)" stroke="rgba(255,80,80,0.25)"/>
+  <text x="140" y="214" fill="#FFD6D6" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">Tous les channels et messages du workspace Projet suisse seront</text>
+  <text x="140" y="234" fill="#FFD6D6" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">definitivement supprimes.</text>
+  <text x="124" y="278" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Cette action ne peut pas etre annulee.</text>
+  <rect x="464" y="264" width="88" height="38" rx="12" fill="#2B2D31" stroke="#3A3B40"/>
+  <text x="489" y="288" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Annuler</text>
+  <rect x="564" y="264" width="88" height="38" rx="12" fill="rgba(255,80,80,0.10)" stroke="rgba(255,80,80,0.25)"/>
+  <text x="585" y="288" fill="#FFBABA" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">Supprimer</text>
+</svg>

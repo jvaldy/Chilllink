@@ -1,0 +1,18 @@
+sequenceDiagram
+    actor Sender as Authenticated user
+    participant Frontend as React chat UI
+    participant API as Symfony API
+    participant DB as PostgreSQL
+    participant Mercure as Mercure Hub
+    participant Receiver as Other subscribed client
+
+    Sender->>Frontend: Type message and submit
+    Frontend->>API: POST /api/workspaces/{workspaceId}/channels/{channelId}/messages
+    API->>DB: Check channel membership
+    DB-->>API: Membership confirmed
+    API->>DB: Persist message
+    DB-->>API: Message saved
+    API->>Mercure: Publish message event
+    Mercure-->>Receiver: SSE update
+    API-->>Frontend: 201 Created + message payload
+    Mercure-->>Frontend: Optional live echo or refresh

@@ -1,0 +1,61 @@
+%%{init: {
+  "theme":"base",
+  "themeVariables":{
+    "background":"#050816",
+    "primaryColor":"#0f172a",
+    "primaryBorderColor":"#f59e0b",
+    "primaryTextColor":"#f8fafc",
+    "secondaryColor":"#0f172a",
+    "secondaryBorderColor":"#e879f9",
+    "secondaryTextColor":"#f8fafc",
+    "tertiaryColor":"#0f172a",
+    "tertiaryBorderColor":"#f59e0b",
+    "tertiaryTextColor":"#f8fafc",
+    "lineColor":"#94a3b8",
+    "textColor":"#f8fafc"
+  },
+  "flowchart":{"curve":"basis"}
+}}%%
+flowchart LR
+  classDef root fill:#111827,stroke:#f59e0b,stroke-width:2.5px,color:#f8fafc;
+  classDef branchC fill:#111827,stroke:#f59e0b,stroke-width:2px,color:#fff7ed;
+  classDef branchD fill:#111827,stroke:#e879f9,stroke-width:2px,color:#fdf4ff;
+  classDef leafC fill:#0b1220,stroke:#f59e0b,stroke-width:1.5px,color:#ffedd5;
+  classDef leafD fill:#0b1220,stroke:#e879f9,stroke-width:1.5px,color:#fae8ff;
+  classDef note fill:#111827,stroke:#facc15,stroke-width:1.5px,color:#f8fafc;
+
+  ROOT["Chilllink<br/>User Stories<br/>Part 2"]:::root
+  CHANNEL["Channel management"]:::branchC
+  MESSAGING["Messaging"]:::branchD
+
+  linkStyle default stroke:#94a3b8,stroke-width:2px;
+
+  ROOT --- CHANNEL
+  ROOT --- MESSAGING
+
+  C1["Browse channels"]:::leafC
+  C2["Create channel"]:::leafC
+  C3["Rename channel"]:::leafC
+  C4["Delete channel"]:::leafC
+  C5["View channel members"]:::leafC
+  C6["Add channel member"]:::leafC
+  C7["Remove channel member"]:::leafC
+  CHANNEL --- C1
+  CHANNEL --- C2
+  CHANNEL --- C3
+  CHANNEL --- C4
+  CHANNEL --- C5
+  CHANNEL --- C6
+  CHANNEL --- C7
+
+  M1["Read messages"]:::leafD
+  M2["Send message"]:::leafD
+  M3["Receive real-time updates"]:::leafD
+  M4["Restricted channel access"]:::leafD
+  MESSAGING --- M1
+  MESSAGING --- M2
+  MESSAGING --- M3
+  MESSAGING --- M4
+
+  TEMPLATE["As a [user]<br/>I want [goal]<br/>so that [benefit]."]:::note
+  ROOT -.-> TEMPLATE

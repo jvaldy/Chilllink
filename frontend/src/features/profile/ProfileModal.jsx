@@ -155,11 +155,19 @@ export default function ProfileModal({ onClose }) {
             </div>
 
             <div className="profile-actions">
-              <button type="button" className="btn-secondary" onClick={onClose}>
+              <button
+                type="button"
+                className="profile-btn profile-btn-secondary"
+                onClick={onClose}
+              >
                 Fermer
               </button>
 
-              <button type="submit" className="btn-primary" disabled={saving}>
+              <button
+                type="submit"
+                className="profile-btn profile-btn-primary"
+                disabled={saving}
+              >
                 {saving ? "Sauvegarde…" : "Sauvegarder"}
               </button>
             </div>

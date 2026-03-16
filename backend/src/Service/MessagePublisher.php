@@ -1,4 +1,6 @@
-<?php
+﻿<?php
+
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -9,12 +11,15 @@ use App\Service\MessageNormalizer;
 
 class MessagePublisher
 {
+    // Hub Mercure pour publier des updates SSE
     public function __construct(
         private HubInterface $hub
     ) {}
 
+    // Publie un message sur le topic du canal
     public function publish(Message $message): void
     {
+        // Prépare un payload simple (non utilisé dans l'update actuel)
         $payload = [
             'type' => 'message',
             'payload' => [
@@ -26,6 +31,7 @@ class MessagePublisher
             ],
         ];
 
+        // Crée l'update Mercure avec la version normalisée
         $update = new Update(
             sprintf('channel/%d', $message->getChannel()->getId()),
             json_encode([
@@ -35,7 +41,7 @@ class MessagePublisher
             false
         );
 
+        // Envoie l'update au hub
         $this->hub->publish($update);
     }
 }
-

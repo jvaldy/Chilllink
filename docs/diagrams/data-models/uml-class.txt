@@ -1,0 +1,56 @@
+UML - Chilllink (text version)
+
+Main classes
+
+User
+- id: int [PK]
+- email: string [UK]
+- roles: json
+- password: string
+- createdAt: datetime_immutable
+- updatedAt: datetime_immutable
+
+UserProfile
+- id: int [PK]
+- user_id: int [FK -> User.id, UK]
+- firstName: string?
+- lastName: string?
+- birthDate: date?
+- phoneNumber: string?
+- city: string?
+- country: string?
+- bio: text?
+- createdAt: datetime_immutable
+- updatedAt: datetime_immutable
+
+Workspace
+- id: int [PK]
+- name: string
+- owner_id: int [FK -> User.id]
+- createdAt: datetime_immutable
+
+Channel
+- id: int [PK]
+- name: string
+- workspace_id: int [FK -> Workspace.id]
+- createdAt: datetime_immutable
+
+Message
+- id: int [PK]
+- content: text
+- author_id: int [FK -> User.id]
+- channel_id: int [FK -> Channel.id]
+- createdAt: datetime_immutable
+
+Join tables
+- workspace_user(workspace_id, user_id)
+- channel_user(channel_id, user_id)
+
+Relationships
+- User 1 -> 0..1 UserProfile
+- User 1 -> 0..* Workspace (owner)
+- Workspace 1 -> 0..* Channel
+- Channel 1 -> 0..* Message
+- User 1 -> 0..* Message (author)
+- User * <-> * Workspace via workspace_user
+- User * <-> * Channel via channel_user

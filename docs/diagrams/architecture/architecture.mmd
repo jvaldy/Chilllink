@@ -1,0 +1,45 @@
+%%{init: {'theme':'base','themeVariables': {
+  'background':'#0b1020',
+  'primaryTextColor':'#ffffff',
+  'secondaryTextColor':'#ffffff',
+  'tertiaryTextColor':'#ffffff',
+  'lineColor':'#cbd5e1',
+  'fontFamily':'Arial'
+}}}%%
+flowchart LR
+  classDef client fill:#2563eb,stroke:#93c5fd,stroke-width:2px,color:#ffffff;
+  classDef frontend fill:#f97316,stroke:#fdba74,stroke-width:2px,color:#ffffff;
+  classDef api fill:#16a34a,stroke:#86efac,stroke-width:2px,color:#ffffff;
+  classDef realtime fill:#db2777,stroke:#f9a8d4,stroke-width:2px,color:#ffffff;
+  classDef admin fill:#7c3aed,stroke:#c4b5fd,stroke-width:2px,color:#ffffff;
+  classDef database fill:#0891b2,stroke:#67e8f9,stroke-width:2px,color:#ffffff;
+
+  subgraph CLIENT["Client"]
+    BROWSER["Browser<br/>React interface"]:::client
+  end
+
+  subgraph ENTRY["Exposed services"]
+    FRONT["Frontend<br/>React + Vite / Nginx<br/>:5174"]:::frontend
+    API_GATE["Secure API<br/>Symfony 6.4 + JWT<br/>:8888"]:::api
+    MERCURE_GATE["Realtime Hub<br/>Mercure (SSE)<br/>:8085"]:::realtime
+    ADMINER_GATE["DB admin<br/>Adminer<br/>:8082"]:::admin
+  end
+
+  subgraph DOCKER["Docker network: chilllink-net"]
+    API["Symfony API<br/>Controllers / Services / Doctrine / Nelmio"]:::api
+    DB[("PostgreSQL 16<br/>Persistent relational database")]:::database
+    MERCURE["Mercure Hub<br/>Instant message broadcasting"]:::realtime
+    ADMINER["Adminer<br/>Database inspection"]:::admin
+  end
+
+  BROWSER -->|UI rendering| FRONT
+  BROWSER -->|HTTP / JSON API calls| API_GATE
+  BROWSER -->|SSE realtime subscription| MERCURE_GATE
+
+  API_GATE --> API
+  API -->|Read / write data| DB
+  API -->|Publish realtime events| MERCURE
+  MERCURE_GATE -->|Receive pushed updates| MERCURE
+
+  ADMINER_GATE --> ADMINER
+  ADMINER -->|Inspect / manage data| DB

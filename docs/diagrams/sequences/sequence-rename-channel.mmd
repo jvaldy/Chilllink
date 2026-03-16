@@ -1,0 +1,15 @@
+sequenceDiagram
+    actor Owner
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Submit new channel name
+    Frontend->>API: PATCH /api/workspaces/{workspaceId}/channels/{id}
+    API->>API: Validate JWT and owner permission
+    API->>DB: Load workspace and channel
+    DB-->>API: Workspace and channel found
+    API->>DB: Update channel name
+    DB-->>API: Channel updated
+    API-->>Frontend: 200 OK + updated channel
+    Frontend-->>Owner: Replace channel label in UI

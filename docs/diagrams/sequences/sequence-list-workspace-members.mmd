@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor Owner
+    participant Frontend
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Open workspace members modal
+    Frontend->>API: GET /api/workspaces/{id}/members
+    API->>API: Validate JWT and workspace access
+    API->>DB: Load workspace members
+    DB-->>API: Member list
+    API-->>Frontend: 200 OK + members
+    Frontend-->>Owner: Display members modal

@@ -1,0 +1,46 @@
+<svg width="760" height="820" viewBox="0 0 760 820" xmlns="http://www.w3.org/2000/svg">
+  <rect width="760" height="820" fill="#0B0E14"/>
+  <rect x="56" y="48" width="642" height="724" rx="18" fill="#2B2D31"/>
+  <rect x="56" y="48" width="642" height="92" rx="18" fill="#27292D"/>
+  <text x="86" y="88" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700">Channel : Taff</text>
+  <text x="86" y="110" fill="#B5BAC1" font-family="Segoe UI, Arial, sans-serif" font-size="13">Gerer l'acces et les parametres</text>
+  <rect x="640" y="64" width="34" height="34" rx="10" fill="#2F3239" stroke="#4B5563"/>
+  <text x="651" y="86" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="18">×</text>
+
+  <text x="86" y="176" fill="#B5BAC1" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">RENOMMER</text>
+  <rect x="86" y="194" width="394" height="38" rx="14" fill="#1E1F22" stroke="#3A3B40"/>
+  <text x="104" y="219" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="15">Taff</text>
+  <rect x="498" y="194" width="110" height="38" rx="14" fill="#A96435"/>
+  <text x="518" y="219" fill="#1E1F22" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Renommer</text>
+
+  <text x="86" y="288" fill="#B5BAC1" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">AJOUTER UN MEMBRE</text>
+  <rect x="86" y="306" width="412" height="38" rx="14" fill="#1E1F22" stroke="#3A3B40"/>
+  <text x="104" y="331" fill="#8E9297" font-family="Segoe UI, Arial, sans-serif" font-size="15">email@example.com</text>
+  <rect x="518" y="306" width="90" height="38" rx="14" fill="#A96435"/>
+  <text x="544" y="331" fill="#1E1F22" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Ajouter</text>
+
+  <text x="86" y="400" fill="#B5BAC1" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">LISTE</text>
+  <rect x="578" y="388" width="30" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.08)"/>
+  <text x="588" y="405" fill="#949BA4" font-family="Segoe UI, Arial, sans-serif" font-size="12">3</text>
+
+  <rect x="86" y="424" width="522" height="68" rx="14" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)"/>
+  <circle cx="112" cy="458" r="18" fill="#FF8A3D"/>
+  <text x="105" y="464" fill="#1E1F22" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">B</text>
+  <text x="138" y="453" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">boungou.elsie@yahoo.fr</text>
+  <text x="138" y="474" fill="#949BA4" font-family="Segoe UI, Arial, sans-serif" font-size="12">id: 4</text>
+  <rect x="522" y="440" width="70" height="36" rx="12" fill="rgba(255,80,80,0.10)" stroke="rgba(255,80,80,0.25)"/>
+  <text x="540" y="463" fill="#FFBABA" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Retirer</text>
+
+  <rect x="86" y="504" width="522" height="68" rx="14" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)"/>
+  <circle cx="112" cy="538" r="18" fill="#FF8A3D"/>
+  <text x="105" y="544" fill="#1E1F22" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">B</text>
+  <text x="138" y="533" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">boungou.john@yahoo.fr</text>
+  <text x="138" y="554" fill="#949BA4" font-family="Segoe UI, Arial, sans-serif" font-size="12">id: 1</text>
+  <rect x="522" y="520" width="70" height="36" rx="12" fill="rgba(255,80,80,0.10)" stroke="rgba(255,80,80,0.25)"/>
+  <text x="540" y="543" fill="#FFBABA" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Retirer</text>
+
+  <rect x="86" y="606" width="522" height="46" rx="12" fill="rgba(255,80,80,0.10)" stroke="rgba(255,80,80,0.25)"/>
+  <text x="104" y="634" fill="#FFBABA" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600">Supprimer ce channel est irreversible.</text>
+  <rect x="86" y="668" width="522" height="42" rx="12" fill="rgba(255,80,80,0.10)" stroke="rgba(255,80,80,0.25)"/>
+  <text x="248" y="694" fill="#FFBABA" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Supprimer le channel</text>
+</svg>

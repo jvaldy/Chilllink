@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -11,35 +11,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * MeController
- * ------------
- * Endpoint dédié à la récupération de l’utilisateur actuellement authentifié.
- *
- * URL : GET /api/me
- *
- * Responsabilités :
- * - Retourner les informations minimales de l’utilisateur connecté
- * - Vérifier que l’utilisateur est bien authentifié (JWT valide)
- *
- * Cas d’usage typiques :
- * - Initialisation du front après login
- * - Récupération du profil utilisateur
- * - Vérification de session côté client
- *
- * Design choice :
- * - Contrôleur "invokable" (__invoke)
- *   → une seule action, un seul endpoint, lisibilité maximale
- */
+// Endpoint qui retourne l'utilisateur authentifie
 #[OA\Tag(name: 'Users')]
 #[OA\Get(
     path: '/api/me',
-    summary: 'Retourne l’utilisateur connecté',
+    summary: "Retourne l'utilisateur connecte",
     security: [['bearerAuth' => []]],
     responses: [
         new OA\Response(
             response: 200,
-            description: 'Utilisateur connecté',
+            description: 'Utilisateur connecte',
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'id', type: 'integer', example: 1),
@@ -53,7 +34,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
                 ]
             )
         ),
-        new OA\Response(response: 401, description: 'Non authentifié'),
+        new OA\Response(response: 401, description: 'Non authentifie'),
     ]
 )]
 #[Route(
@@ -63,42 +44,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 )]
 final class MeController extends AbstractController
 {
-    /**
-     * Méthode magique __invoke()
-     * --------------------------
-     * Symfony appelle automatiquement cette méthode
-     * lorsqu’un contrôleur ne définit qu’une seule action.
-     *
-     * Avantages :
-     * - Code plus concis
-     * - Intention claire : un endpoint = une responsabilité
-     */
+    // Route protegee par JWT
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function __invoke(): JsonResponse
     {
-        /**
-         * Récupération de l’utilisateur depuis le Security Token Storage
-         * Injecté automatiquement par Symfony via le système de sécurité
-         */
+        // Recupere l'utilisateur courant
         $user = $this->getUser();
 
-        /**
-         * Sécurité défensive :
-         * - Vérifie que l’objet retourné est bien une instance de User
-         * - Protège contre un état incohérent ou une mauvaise configuration
-         */
+        // Verifie le type de l'utilisateur
         if (!$user instanceof User) {
             return $this->json(['error' => 'Unauthorized'], 401);
         }
 
-        /**
-         * Réponse JSON volontairement minimale :
-         * - id       : identifiant technique
-         * - email    : identifiant fonctionnel
-         * - roles    : gestion des droits côté front
-         *
-         * ⚠️ Aucune donnée sensible n’est exposée (mot de passe, tokens, etc.)
-         */
+        // Retourne les infos minimales
         return $this->json([
             'id'    => $user->getId(),
             'email' => $user->getEmail(),

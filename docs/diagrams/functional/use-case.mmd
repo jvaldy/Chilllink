@@ -1,0 +1,40 @@
+flowchart LR
+  %% Styles
+  classDef actor fill:#0b0f19,stroke:#94a3b8,stroke-width:1.5px,color:#e5e7eb;
+  classDef block fill:#111827,stroke:#f59e0b,stroke-width:1.5px,color:#f8fafc;
+  classDef admin fill:#1f2937,stroke:#a855f7,stroke-width:1.5px,color:#f8fafc;
+
+  %% Actors
+  Guest["Visitor"]:::actor
+  User["Authenticated user"]:::actor
+  Owner["Workspace owner"]:::actor
+
+  %% System
+  subgraph SYS["Chilllink system"]
+    direction LR
+
+    VisitorAccount["Visitor account actions<br/>• Register<br/>• Log in"]:::block
+    UserAccount["User account actions<br/>• Edit profile information<br/>• Log out"]:::block
+
+    WS["Workspaces<br/>• Browse workspaces"]:::block
+    WSAdmin["Workspace admin<br/>• Create workspace<br/>• View workspace members<br/>• Add / remove members<br/>• Edit / delete workspace"]:::admin
+
+    CH["Channels<br/>• Browse channels"]:::block
+    CHAdmin["Channel admin<br/>• Create channel<br/>• View channel members<br/>• Add / remove members<br/>• Manage access<br/>• Edit / delete channel"]:::admin
+
+    MSG["Messaging<br/>• Read messages<br/>• Send message<br/>• Real-time updates"]:::block
+    ACL["Access control<br/>• Control workspace access<br/>• Access restricted channel"]:::block
+  end
+
+  %% Relations
+  Guest --> VisitorAccount
+
+  User --> UserAccount
+  User --> WS
+  User --> CH
+  User --> MSG
+  User --> ACL
+
+  Owner -. inherits .-> User
+  Owner --> WSAdmin
+  Owner --> CHAdmin

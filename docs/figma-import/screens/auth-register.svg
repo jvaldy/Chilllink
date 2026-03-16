@@ -1,0 +1,20 @@
+<svg width="760" height="860" viewBox="0 0 760 860" xmlns="http://www.w3.org/2000/svg">
+  <rect width="760" height="860" fill="#2B2D31"/>
+  <rect x="190" y="104" width="380" height="610" rx="18" fill="#1E1F22"/>
+  <rect x="344" y="170" width="24" height="24" rx="7" fill="#FF8A3D"/>
+  <circle cx="356" cy="182" r="7" fill="#1E1F22"/>
+  <text x="382" y="188" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Chilllink</text>
+  <text x="294" y="290" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700">Inscription</text>
+  <text x="246" y="370" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Email</text>
+  <rect x="246" y="392" width="268" height="52" rx="6" fill="#D9E1F0"/>
+  <rect x="478" y="406" width="20" height="20" rx="4" fill="#B7BCC6"/>
+  <text x="264" y="425" fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="14">boungou.elsie@yahoo.fr</text>
+  <text x="246" y="500" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Mot de passe</text>
+  <rect x="246" y="522" width="268" height="52" rx="6" fill="#D9E1F0"/>
+  <rect x="478" y="536" width="20" height="20" rx="4" fill="#B7BCC6"/>
+  <text x="264" y="555" fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">........</text>
+  <rect x="246" y="614" width="268" height="52" rx="6" fill="#FF8A3D"/>
+  <text x="356" y="646" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">S'inscrire</text>
+  <text x="290" y="718" fill="#DCDDDE" font-family="Segoe UI, Arial, sans-serif" font-size="14">Deja un compte ?</text>
+  <text x="432" y="718" fill="#FF8A3D" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">Connexion</text>
+</svg>

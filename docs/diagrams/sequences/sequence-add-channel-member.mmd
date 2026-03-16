@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor Owner as Workspace owner
+    participant Frontend as Channel members modal
+    participant API as Symfony API
+    participant DB as PostgreSQL
+
+    Owner->>Frontend: Enter member email and confirm
+    Frontend->>API: POST /api/workspaces/{workspaceId}/channels/{channelId}/members
+    API->>DB: Load workspace and channel
+    DB-->>API: Workspace + channel loaded
+    API->>DB: Check owner permission
+    DB-->>API: Owner permission confirmed
+    API->>DB: Find user by email
+
+    alt User does not exist
+        API-->>Frontend: Error response
+        Frontend-->>Owner: Show translated error message
+    else User exists
+        API->>DB: Check workspace membership
+        alt User is not a workspace member
+            API-->>Frontend: 400 USER_NOT_WORKSPACE_MEMBER
+            Frontend-->>Owner: Explain that only workspace members can be added
+        else User is eligible
+            API->>DB: Insert channel membership
+            DB-->>API: Membership saved
+            API-->>Frontend: 201 member_added
+            Frontend-->>Owner: Refresh member list
+        end
+    end
